@@ -1,5 +1,5 @@
 # GitHub Issue to Work Item
-Create a Work Item on an Azure Board when a Security Vulnerability is found
+Create a Work Item on an Azure Board when a GitHub Issue is created
 
 ## Outputs
 
