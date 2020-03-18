@@ -1,5 +1,5 @@
 name: 'GitHub Issue to Azure Board'
-description: 'Create a Work Utem on an Azure Board when a GitHub Issue is created'
+description: 'Create a Work Item on an Azure Board when a GitHub Issue is created'
 author: 'danhellem'
 branding:
   icon: 'columns'
