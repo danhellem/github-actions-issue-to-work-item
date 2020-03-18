@@ -1,0 +1,12 @@
+name: 'GitHub Issue to Azure Board'
+description: 'Create a Work Utem on an Azure Board when a GitHub Issue is created'
+author: 'danhellem'
+branding:
+  icon: 'columns'
+  color: 'green'
+outputs:
+  id:
+    description: 'id of work item created'
+runs:
+  using: 'node12'
+  main: 'index.js'
