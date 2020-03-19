@@ -69,7 +69,7 @@ try {
 	console.log("Full payload...");
 	console.log(`${JSON.stringify(github.context.payload, undefined, 2)}`);
 
-	var vm = this.getValuesFromPayload(github.context.payload);
+	var vm = getValuesFromPayload(github.context.payload);
 	console.log("View Model...");
 	console.log(`${JSON.stringify(vm, undefined, 2)}`);
 
