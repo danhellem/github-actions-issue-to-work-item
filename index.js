@@ -96,29 +96,25 @@ async function findWorkItem(number, repository) {
 	console.log(wiql);
 
 	// prettier-ignore
-	try {
-		let queryResult = await client.queryByWiql(wiql, teamContext);
-		let workItem = queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
 
-		console.log("");
-		console.log("queryResult workItem...");
-		console.log(workItem);
+	let queryResult = await client.queryByWiql(wiql, teamContext);
+	let workItem =
+		queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
 
-		result = workItem != null ? await client.getWorkItem(workItem.id, null, null, 4) : null;
-		
-		console.log("");
-		console.log("getWorkItem result...");
-		console.log(result);
+	console.log("");
+	console.log("queryResult workItem...");
+	console.log(workItem);
 
-		return result;		
-	} catch (error) {
-		core.setFailed(error.message)
-		return null;		
-	} finally {
-		client = null;
-		connection = null;
-		authHandler = null;
-	}
+	result =
+		workItem != null
+			? await client.getWorkItem(workItem.id, null, null, 4)
+			: null;
+
+	console.log("");
+	console.log("getWorkItem result...");
+	console.log(result);
+
+	return result;
 }
 
 function getValuesFromPayload(payload) {
