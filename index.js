@@ -16,7 +16,7 @@ async function createWorkItem(vm) {
 	let connection = new azdev.WebApi(_adoHelper.orgUrl, authHandler);
 	let client = await connection.getWorkItemTrackingApi();
 
-	let pathDocument = [
+	let patchDocument = [
 		{
 			op: "add",
 			path: "/fields/System.Title",
@@ -56,12 +56,22 @@ async function createWorkItem(vm) {
 		}
 	];
 
-	return workapi.createWorkItem(
+	console.log("");
+	console.log("Create work item Patch Document...");
+	console.log(patchDocument);
+
+	let workItemSaveResult = await workapi.createWorkItem(
 		(customHeaders = []),
-		(document = pathDocument),
+		(document = patchDocument),
 		(project = _adoHelper.project),
 		(type = _adoHelper.wit)
 	);
+
+	console.log("");
+	console.log("Create work save result...");
+	console.log(workItemSaveResult);
+
+	return workItemSaveResult;
 }
 
 async function findWorkItem(number, repository) {
@@ -177,6 +187,10 @@ try {
 	// go check to see if work item already exists in ado or not
 	// based on the title and tags
 	let workItem = findWorkItem(vm.number, vm.repository);
+
+	console.log("");
+	console.log("Find Work Item...");
+	console.log(workItem);
 
 	// if a work item was not found, go create one
 	if (workItem == null) {
