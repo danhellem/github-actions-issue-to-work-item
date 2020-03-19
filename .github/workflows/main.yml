@@ -15,4 +15,4 @@ jobs:
         ado_token: '${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}'
         ado_organization: 'privatepreview'
         ado_project: 'Agile 1'
-        ado_wit: 'Issue' 
+        ado_wit: 'User Story' 
