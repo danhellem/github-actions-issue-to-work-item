@@ -196,12 +196,12 @@ try {
 	let workItem = findWorkItem(vm.number, vm.repository);
 
 	console.log("");
-	console.log("Find Work Item...");
+	console.log("findWorkItem...");
 	console.log(workItem);
 
 	// if a work item was not found, go create one
-	if (workItem == null) {
-		workItem = createWorkItem(vm);
+	if (workItem === null) {
+		//workItem = createWorkItem(vm);
 	}
 
 	//TBD: handle updates and edge cases
