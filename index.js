@@ -51,10 +51,33 @@ async function createIssue(
 }
 
 function getValuesFromPayload(payload) {
-	payloadVm.action = payload.actiom != null ? payload.action : "";
-	payloadVm.url = payload.issue.html_url != null ? payload.issue.html_url : "";
+	// prettier-ignore
+	var vm = {
+		action: payload.action != null ? payload.action : "",
+		url: payload.issue.html_url != null ? payload.issue.html_url : "",
+		number: payload.issue.number != null ? payload.issue.number : -1,
+		title: payload.issue.title != null ? payload.issue.title : "",
+		state: payload.issue.state != null ? payload.issue.state : "",
+		user: payload.issue.user.login != null ? payload.issue.user.login : "",
+		body: payload.issue.body != null ? payload.issue.body : "",
+		repo_fullname: payload.repsitory.full_name != null ? payload.repsitory.full_name : "",
+		repo_name: payload.repsitory.name != null ? payload.repsitory.name : "",
+		repo_url: payload.repsitory.html_url != null ? payload.repsitory.html_url : "",
+		closed_at: payload.issue.closed_at != null ? payload.issue.closed_at : null,
+		label: payload.label.name != null ? payload.label.name : "",
+		comment_text: payload.comment.body != null ? payload.comment.body : "",
+		comment_url: payload.comment.html_url != null ? payload.comment.html_url : "",
+		organization: function() {
+			var split = payload.repsitory.full_name.split('/');
+			return split[0];
+		},
+		repsitory: function() {
+			var split = payload.repsitory.full_name.split('/');
+			return split[1];
+		}
+	};
 
-	return payloadVm;
+	return vm;
 }
 
 try {
