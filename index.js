@@ -41,9 +41,12 @@ try {
 	const ado_project = core.getInput("ado-project");
 	const ado_wit = core.getInput("ado-wit");
 
-	console.log("ado-organization: ${ado_organization}");
-	console.log("ado-project: ${ado_project}");
-	console.log("ado-wit: ${ado_wit}");
+	console.log(`ado-organization: ${ado_organization}`);
+	console.log(`ado-project: ${ado_project}`);
+	console.log(`ado-wit: ${ado_wit}`);
+
+	const payload = JSON.stringify(github.context.payload, undefined, 2);
+	console.log(`The event payload: ${payload}`);
 
 	//TBD: extract Issue info from context
 	//TBD: createIssue()
