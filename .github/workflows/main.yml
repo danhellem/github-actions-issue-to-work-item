@@ -11,7 +11,7 @@ jobs:
     steps:       
     - uses: danhellem/github-actions-issue-to-work-item@master
       env:
-        github-token: 'temp'
-        ado-token: 'temp'
-        ado-organization: 'https://dev.azure.com/privatepreview'
-        ado-project: 'my project'
+        github_token: 'temp'
+        ado_token: 'temp'
+        ado_organization: 'https://dev.azure.com/privatepreview'
+        ado_project: 'my project'
