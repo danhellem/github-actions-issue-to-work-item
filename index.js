@@ -53,25 +53,25 @@ async function createIssue(
 function getValuesFromPayload(payload) {
 	// prettier-ignore
 	var vm = {
-		action: payload.action != null ? payload.action : "",
-		url: payload.issue.html_url != null ? payload.issue.html_url : "",
-		number: payload.issue.number != null ? payload.issue.number : -1,
-		title: payload.issue.title != null ? payload.issue.title : "",
-		state: payload.issue.state != null ? payload.issue.state : "",
-		user: payload.issue.user.login != null ? payload.issue.user.login : "",
-		body: payload.issue.body != null ? payload.issue.body : "",
-		repo_fullname: payload.repsitory.full_name != null ? payload.repsitory.full_name : "",
-		repo_name: payload.repository.name != null ? payload.repository.name : "",
-		repo_url: payload.repository.html_url != null ? payload.repository.html_url : "",
-		closed_at: payload.issue.closed_at != null ? payload.issue.closed_at : null,
-		label: payload.label.name != null ? payload.label.name : "",
-		comment_text: payload.comment.body != null ? payload.comment.body : "",
-		comment_url: payload.comment.html_url != null ? payload.comment.html_url : "",
+		action: payload.action != undefined ? payload.action : "",
+		url: payload.issue.html_url != undefined ? payload.issue.html_url : "",
+		number: payload.issue.number != undefined ? payload.issue.number : -1,
+		title: payload.issue.title != undefined ? payload.issue.title : "",
+		state: payload.issue.state != undefined ? payload.issue.state : "",
+		user: payload.issue.user.login != undefined ? payload.issue.user.login : "",
+		body: payload.issue.body != undefined ? payload.issue.body : "",
+		repo_fullname: payload.repository.full_name != undefined ? payload.repository.full_name : "",
+		repo_name: payload.repository.name != undefined ? payload.repository.name : "",
+		repo_url: payload.repository.html_url != undefined ? payload.repository.html_url : "",
+		closed_at: payload.issue.closed_at != undefined ? payload.issue.closed_at : null,
+		label: payload.label.name != undefined ? payload.label.name : "",
+		comment_text: payload.comment.body != undefined ? payload.comment.body : "",
+		comment_url: payload.comment.html_url != undefined ? payload.comment.html_url : "",
 		organization: function() {
 			var split = payload.repository.full_name.split('/');
 			return split[0];
 		},
-		repsitory: function() {
+		repository: function() {
 			var split = payload.repository.full_name.split('/');
 			return split[1];
 		}
