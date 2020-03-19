@@ -35,7 +35,7 @@ async function createIssue(
 try {
 	let context = github.context;
 
-	const env = core.getInput("env");
+	const env = process.env;
 
 	console.log("environment stringify...");
 	console.log(JSON.stringify(env));
