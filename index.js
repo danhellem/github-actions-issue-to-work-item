@@ -37,9 +37,9 @@ try {
 
 	const env = process.env;
 
-	console.log(`ado-organization: ${env.ado - organization}`);
-	console.log(`ado-project: ${env.ado - project}`);
-	console.log(`ado-wit: ${env.ado - wit}`);
+	console.log(`ado-organization: ${env.ado_organization}`);
+	console.log(`ado-project: ${env.ado_project}`);
+	console.log(`ado-wit: ${env.ado_wit}`);
 
 	const payload = JSON.stringify(github.context.payload, undefined, 2);
 	console.log(`The event payload: ${payload}`);
