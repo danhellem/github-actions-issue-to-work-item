@@ -97,25 +97,28 @@ async function findWorkItem(number, repository) {
 
 	// prettier-ignore
 	try {
-		var queryResult = await client.queryByWiql(wiql, teamContext);
-		var workItem = queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
+		let queryResult = await client.queryByWiql(wiql, teamContext);
+		let workItem = queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
+
+		console.log("");
+		console.log("queryResult workItem...");
+		console.log(workItem);
 
 		result = workItem != null ? await client.getWorkItem(workItem.id, null, null, 4) : null;
 		
 		console.log("");
 		console.log("getWorkItem result...");
 		console.log(result);
-		
+
+		return result;		
 	} catch (error) {
-		result = null;
 		core.setFailed(error.message)
+		return null;		
 	} finally {
 		client = null;
 		connection = null;
 		authHandler = null;
 	}
-
-	return result;
 }
 
 function getValuesFromPayload(payload) {
@@ -178,7 +181,7 @@ try {
 
 	console.log("");
 	console.log("Full payload...");
-	console.log(github.context.payload);
+	//console.log(github.context.payload);
 
 	let vm = getValuesFromPayload(github.context.payload);
 	//console.log("View Model...");
