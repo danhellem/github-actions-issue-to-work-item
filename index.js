@@ -35,6 +35,11 @@ async function createIssue(
 try {
 	let context = github.context;
 
+	const env = core.getInput("env");
+
+	console.log("environment stringify...");
+	console.log(JSON.stringify(env));
+
 	const github_token = core.getInput("github-token");
 	const ado_token = core.getInput("ado-token");
 	const ado_organization = core.getInput("ado-organization");
