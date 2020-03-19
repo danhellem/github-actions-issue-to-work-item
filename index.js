@@ -41,9 +41,9 @@ try {
 	const ado_project = core.getInput("ado-project");
 	const ado_wit = core.getInput("ado-wit");
 
-	console.log("ado-organization: " + ado_organization);
-	console.log("ado-project: " + ado_project);
-	console.log("ado-wit: " + ado_wit);
+	console.log("ado-organization: ${ado_organization}");
+	console.log("ado-project: ${ado_project}");
+	console.log("ado-wit: ${ado_wit}");
 
 	//TBD: extract Issue info from context
 	//TBD: createIssue()
