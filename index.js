@@ -37,18 +37,9 @@ try {
 
 	const env = process.env;
 
-	console.log("environment stringify...");
-	console.log(JSON.stringify(env));
-
-	const github_token = core.getInput("github-token");
-	const ado_token = core.getInput("ado-token");
-	const ado_organization = core.getInput("ado-organization");
-	const ado_project = core.getInput("ado-project");
-	const ado_wit = core.getInput("ado-wit");
-
-	console.log(`ado-organization: ${ado_organization}`);
-	console.log(`ado-project: ${ado_project}`);
-	console.log(`ado-wit: ${ado_wit}`);
+	console.log(`ado-organization: ${env.ado - organization}`);
+	console.log(`ado-project: ${env.ado - project}`);
+	console.log(`ado-wit: ${env.ado - wit}`);
 
 	const payload = JSON.stringify(github.context.payload, undefined, 2);
 	console.log(`The event payload: ${payload}`);
