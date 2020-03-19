@@ -61,18 +61,18 @@ function getValuesFromPayload(payload) {
 		user: payload.issue.user.login != null ? payload.issue.user.login : "",
 		body: payload.issue.body != null ? payload.issue.body : "",
 		repo_fullname: payload.repsitory.full_name != null ? payload.repsitory.full_name : "",
-		repo_name: payload.repsitory.name != null ? payload.repsitory.name : "",
-		repo_url: payload.repsitory.html_url != null ? payload.repsitory.html_url : "",
+		repo_name: payload.repository.name != null ? payload.repository.name : "",
+		repo_url: payload.repository.html_url != null ? payload.repository.html_url : "",
 		closed_at: payload.issue.closed_at != null ? payload.issue.closed_at : null,
 		label: payload.label.name != null ? payload.label.name : "",
 		comment_text: payload.comment.body != null ? payload.comment.body : "",
 		comment_url: payload.comment.html_url != null ? payload.comment.html_url : "",
 		organization: function() {
-			var split = payload.repsitory.full_name.split('/');
+			var split = payload.repository.full_name.split('/');
 			return split[0];
 		},
 		repsitory: function() {
-			var split = payload.repsitory.full_name.split('/');
+			var split = payload.repository.full_name.split('/');
 			return split[1];
 		}
 	};
