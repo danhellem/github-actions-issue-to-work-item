@@ -28,7 +28,7 @@ jobs:
       env:
         github-token: '${{ secrets.PERSONAL_TOKEN }}'
         ado-token: '${{ secrets.AZURE_PERSONAL_ACCESS_TOKEN }}'
-        ado-organization: 'https://dev.azure.com/your_org_name'
+        ado-organization: 'ado_organization_name'
         ado-project: 'your_project_name'
         ado-wit: 'Issue'
 ```
