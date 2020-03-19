@@ -114,7 +114,7 @@ async function findWorkItem(number, repository) {
 	console.log("getWorkItem result...");
 	console.log(result);
 
-	return result;
+	return await result;
 }
 
 function getValuesFromPayload(payload) {
