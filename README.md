@@ -27,8 +27,8 @@ jobs:
     - uses: danhellem/github-actions-issue-to-work-item@master
       env:
         github-token: '${{ secrets.PERSONAL_TOKEN }}'
-        ado-token: '${{ secrets.AZURE_PERSONAL_ACCESS_TOKEN }}'
-        ado-organization: 'https://dev.azure.com/your_org_name'
+        ado-token: '${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}'
+        ado-organization: 'ado_organization_name'
         ado-project: 'your_project_name'
         ado-wit: 'Issue'
 ```

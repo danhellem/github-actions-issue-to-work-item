@@ -12,7 +12,7 @@ jobs:
     - uses: danhellem/github-actions-issue-to-work-item@master
       env:
         github_token: 'temp'
-        ado_token: 'temp'
-        ado_organization: 'https://dev.azure.com/privatepreview'
-        ado_project: 'my project'
+        ado_token: '${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}'
+        ado_organization: 'privatepreview'
+        ado_project: 'Agile 1'
         ado_wit: 'Issue' 
