@@ -48,6 +48,8 @@ function findWorkItem(workItemTrackingApi, number, repository, project) {
 		return;
 	}
 
+	let teamContext = { project: project };
+
 	var wiql = {
 		Query:
 			"SELECT [System.Id], [System.WorkItemType], [System.Description], [System.Title], [System.AssignedTo], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" +
@@ -59,7 +61,7 @@ function findWorkItem(workItemTrackingApi, number, repository, project) {
 
 	console.log(wiql);
 
-	var queryResults = workItemTrackingApi.queryByWiqlAsync(wiql, project);
+	var queryResults = workItemTrackingApi.queryByWiql(wiql, teamContext);
 	console.log(queryResults);
 }
 
