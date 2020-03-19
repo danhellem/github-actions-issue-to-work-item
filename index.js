@@ -2,56 +2,78 @@ const core = require(`@actions/core`);
 const github = require(`@actions/github`);
 const azdev = require(`azure-devops-node-api`);
 
-// create Work Item via https://docs.microsoft.com/en-us/rest/api/azure/devops/
-async function createIssue(
-	token,
-	organization,
-	projectName,
-	title,
-	description
-) {
-	let orgUrl = "https://dev.azure.com/" + organization;
-	let authHandler = azdev.getPersonalAccessTokenHandler(token);
-	let connection = new azdev.WebApi(orgUrl, authHandler);
+var _adoHelper = {
+	organization: "",
+	orgUrl: "",
+	token: "",
+	project: "",
+	wit: ""
+};
 
-	let workapi = await connection.getWorkItemTrackingApi();
+// create Work Item via https://docs.microsoft.com/en-us/rest/api/azure/devops/
+async function createWorkItem(vm) {
+	let authHandler = azdev.getPersonalAccessTokenHandler(_adoHelper.token);
+	let connection = new azdev.WebApi(_adoHelper.orgUrl, authHandler);
+	let client = await connection.getWorkItemTrackingApi();
+
+	let pathDocument = [
+		{
+			op: "add",
+			path: "/fields/System.Title",
+			value: vm.title + " (GitHub Issue #" + vm.number + ")"
+		},
+		{
+			op: "add",
+			path: "/fields/System.Description",
+			value: vm.body
+		},
+		{
+			op: "add",
+			path: "/fields/System.Tags",
+			value: "GitHub Issue; " + vm.repo_name
+		},
+		{
+			op: "add",
+			path: "/fields/System.History",
+			value:
+				'GitHub <a href="' +
+				vm.url +
+				'" target="_new">issue #' +
+				vm.number +
+				'</a> created in <a href="' +
+				vm.repo_url +
+				'" target="_new">' +
+				vm.repo_fullname +
+				"</a>"
+		},
+		{
+			op: "add",
+			path: "/relations/-",
+			value: {
+				rel: "Hyperlink",
+				url: vm.url
+			}
+		}
+	];
 
 	return workapi.createWorkItem(
 		(customHeaders = []),
-		(document = [
-			{ op: "add", path: "/fields/System.Title", value: title },
-			{ op: "add", path: "/fields/System.Description", value: description },
-			{
-				op: "add",
-				path: "/fields/Microsoft.VSTS.Common.Priority",
-				value: priority
-			}
-		]),
-		(project = projectName),
-		(type = `Issue`)
+		(document = pathDocument),
+		(project = _adoHelper.project),
+		(type = _adoHelper.wit)
 	);
 }
 
-async function getWorkItemTrackingApi(token, organization) {
-	let orgUrl = "https://dev.azure.com/" + organization;
-	let authHandler = azdev.getPersonalAccessTokenHandler(token);
-	let connection = new azdev.WebApi(orgUrl, authHandler);
+async function findWorkItem(number, repository) {
+	let authHandler = azdev.getPersonalAccessTokenHandler(_adoHelper.token);
+	let connection = new azdev.WebApi(_adoHelper.orgUrl, authHandler);
+	let client = await connection.getWorkItemTrackingApi();
 
-	let workItemTrackingApi = await connection.getWorkItemTrackingApi();
+	let teamContext = { project: _adoHelper.project };
+	let result = null;
 
-	return workItemTrackingApi;
-}
-
-function findWorkItem(workItemTrackingApi, number, repository, project) {
-	if (workItemTrackingApi === null || workItemTrackingApi === undefined) {
-		core.setFailed("workItemTrackingApi is null or undefined");
-		return;
-	}
-
-	let teamContext = { project: project };
-
-	var wiql = {
-		Query:
+	let wiql = {
+		query:
 			"SELECT [System.Id], [System.WorkItemType], [System.Description], [System.Title], [System.AssignedTo], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" +
 			number +
 			")' AND [System.Tags] CONTAINS 'GitHub Issue' AND [System.Tags] CONTAINS '" +
@@ -59,10 +81,23 @@ function findWorkItem(workItemTrackingApi, number, repository, project) {
 			"'"
 	};
 
-	console.log(wiql);
+	// prettier-ignore
+	try {
+		var queryResult = await client.queryByWiql(wiql, teamContext);
+		var workItem = queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
 
-	var queryResults = workItemTrackingApi.queryByWiql(wiql, teamContext);
-	console.log(queryResults);
+		result = workItem != null ? await client.getWorkItem(workItem.id, null, null, 4) : null;
+		console.log(JSON.stringify(result));
+	} catch (error) {
+		result = null;
+		core.setFailed(error.message)
+	} finally {
+		client = null;
+		connection = null;
+		authHandler = null;
+	}
+
+	return result;
 }
 
 function getValuesFromPayload(payload) {
@@ -113,29 +148,33 @@ try {
 
 	const env = process.env;
 
-	console.log(`ado-organization: ${env.ado_organization}`);
-	console.log(`ado-project: ${env.ado_project}`);
-	console.log(`ado-wit: ${env.ado_wit}`);
+	// prettier-ignore
+	_adoHelper.organization = env.ado_organization != undefined ? env.ado_organization : "";
+	// prettier-ignore
+	_adoHelper.orgUrl = env.ado_organization != undefined ? "https://dev.azure.com/" + env.ado_organization : "";
+	_adoHelper.token = env.ado_token != undefined ? env.ado_token : "";
+	_adoHelper.project = env.ado_project != undefined ? env.ado_project : "";
+	_adoHelper.wit = env.ado_wit != undefined ? env.ado_wit : "";
+
+	// todo: validate we have all the right inputs
 
 	console.log("Full payload...");
 	console.log(`${JSON.stringify(github.context.payload, undefined, 2)}`);
 
-	var vm = getValuesFromPayload(github.context.payload);
-	console.log("View Model...");
-	console.log(`${JSON.stringify(vm, undefined, 2)}`);
+	let vm = getValuesFromPayload(github.context.payload);
+	//console.log("View Model...");
+	//console.log(`${JSON.stringify(vm, undefined, 2)}`);
 
-	var workItemTrackingApi = getWorkItemTrackingApi(
-		env.ado_token,
-		env.ado_organization
-	);
-	var results = findWorkItem(
-		workItemTrackingApi,
-		vm.number,
-		vm.respository,
-		env.ado_project
-	);
+	// go check to see if work item already exists in ado or not
+	// based on the title and tags
+	let workItem = findWorkItem(vm.number, vm.respository);
 
-	//TBD: createIssue()
+	// if a work item was not found, go create one
+	if (workItem == null) {
+		workItem = createWorkItem(vm);
+	}
+
+	//TBD: handle updates and edge cases
 } catch (error) {
 	core.setFailed(error.message);
 }
