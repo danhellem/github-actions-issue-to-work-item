@@ -1,7 +1,7 @@
 {
   "name": "github-actions-issue-to-work-item",
   "version": "1.0.0",
-  "description": "Create a Work Item on an Azure Board when a GitHub Issue is created",
+  "description": "Create a Work Item on an Azure Board when a GitHub Issue is created or updated",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
