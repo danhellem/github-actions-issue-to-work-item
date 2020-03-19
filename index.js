@@ -101,7 +101,11 @@ async function findWorkItem(number, repository) {
 		var workItem = queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
 
 		result = workItem != null ? await client.getWorkItem(workItem.id, null, null, 4) : null;
-		console.log(JSON.stringify(result));
+		
+		console.log("");
+		console.log("getWorkItem result...");
+		console.log(result);
+		
 	} catch (error) {
 		result = null;
 		core.setFailed(error.message)
