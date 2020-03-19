@@ -2,7 +2,7 @@ name: Create Work Item in Azure DevOps from Issue
 
 on:
   issues:
-    types: [opened, updated]
+    types: [opened, edited, deleted, closed, reopened, labeled, unlabeled]
 
 jobs:
   alert:
