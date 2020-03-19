@@ -1,0 +1,17 @@
+name: Create Work Item in Azure DevOps from Issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    name: Testing workflow
+    steps:       
+    - uses: danhellem/github-actions-issue-to-work-item@master
+      env:
+        github-token: 'temp'
+        ado-pat: 'temp'
+        ado-organization: 'https://dev.azure.com/privatepreview'
+        ado-project: 'my project'
