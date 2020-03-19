@@ -164,7 +164,7 @@ try {
 
 	console.log("");
 	console.log("Full payload...");
-	console.log(`${JSON.stringify(github.context.payload, undefined, 2)}`);
+	console.log(github.context.payload);
 
 	let vm = getValuesFromPayload(github.context.payload);
 	//console.log("View Model...");
@@ -172,7 +172,7 @@ try {
 
 	console.log("");
 	console.log("Payload viewModel...");
-	console.log(`${JSON.stringify(vm, undefined, 2)}`);
+	console.log(vm);
 
 	// go check to see if work item already exists in ado or not
 	// based on the title and tags
