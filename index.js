@@ -122,7 +122,7 @@ function getValuesFromPayload(payload) {
 		comment_text: "",
 		comment_url: "",
 		organization: "",
-		respository: ""		
+		repository: ""		
 	};
 
 	// label is not always part of the payload
@@ -176,7 +176,7 @@ try {
 
 	// go check to see if work item already exists in ado or not
 	// based on the title and tags
-	let workItem = findWorkItem(vm.number, vm.respository);
+	let workItem = findWorkItem(vm.number, vm.repository);
 
 	// if a work item was not found, go create one
 	if (workItem == null) {
