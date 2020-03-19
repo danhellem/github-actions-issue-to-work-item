@@ -1,0 +1,25 @@
+{
+  "name": "github-actions-issue-to-work-item",
+  "version": "1.0.0",
+  "description": "Create a Work Item on an Azure Board when a GitHub Issue is created",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danhellem/github-actions-issue-to-work-item.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/danhellem/github-actions-issue-to-work-item/issues"
+  },
+  "homepage": "https://github.com/danhellem/github-actions-issue-to-work-item#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.3",
+    "@actions/github": "^2.1.1",
+    "azure-devops-node-api": "^10.1.0"
+  }
+}
