@@ -81,6 +81,10 @@ async function findWorkItem(number, repository) {
 			"'"
 	};
 
+	console.log("");
+	console.log("WIQL...");
+	console.log(wiql);
+
 	// prettier-ignore
 	try {
 		var queryResult = await client.queryByWiql(wiql, teamContext);
@@ -158,12 +162,17 @@ try {
 
 	// todo: validate we have all the right inputs
 
+	console.log("");
 	console.log("Full payload...");
 	console.log(`${JSON.stringify(github.context.payload, undefined, 2)}`);
 
 	let vm = getValuesFromPayload(github.context.payload);
 	//console.log("View Model...");
 	//console.log(`${JSON.stringify(vm, undefined, 2)}`);
+
+	console.log("");
+	console.log("Payload viewModel...");
+	console.log(`${JSON.stringify(vm, undefined, 2)}`);
 
 	// go check to see if work item already exists in ado or not
 	// based on the title and tags
