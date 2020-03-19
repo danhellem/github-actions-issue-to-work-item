@@ -32,6 +32,30 @@ async function createIssue(
 	);
 }
 
+async function getWorkItemTrackingApi(token, organization) {
+	let orgUrl = "https://dev.azure.com/" + organization;
+	let authHandler = azdev.getPersonalAccessTokenHandler(token);
+	let connection = new azdev.WebApi(orgUrl, authHandler);
+
+	let workItemTrackingApi = await connection.getWorkItemTrackingApi();
+
+	return workItemTrackingApi;
+}
+
+function findWorkItem(workItemTrackingApi, number, repository, project) {
+	if (workItemTrackingApi === null || workItemTrackingApi === undefined) 	{
+		core.setFailed("workItemTrackingApi is null or undefined");
+		return;
+	}	
+
+	var wiql = {
+		Query = "SELECT [System.Id], [System.WorkItemType], [System.Description], [System.Title], [System.AssignedTo], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" + number + ")' AND [System.Tags] CONTAINS 'GitHub Issue' AND [System.Tags] CONTAINS '" + repository + "'"
+	};
+
+	var queryResults = workItemTrackingApi.queryByWiqlAsync(wiql, project);
+	console.log(queryResults);
+}
+
 function getValuesFromPayload(payload) {
 	// prettier-ignore
 	var vm = {
@@ -68,8 +92,8 @@ function getValuesFromPayload(payload) {
 	// split repo full name to get the org and repository names
 	if (vm.repo_fullname != "") {
 		var split = payload.repository.full_name.split("/");
-		vm.organization = split[0];
-		vm.repsitory = split[1];
+		vm.organization = split[0] != undefined ? split[0] : "";
+		vm.repository = split[1] != undefined ? split[1] : "";
 	}
 
 	return vm;
@@ -91,7 +115,9 @@ try {
 	console.log("View Model...");
 	console.log(`${JSON.stringify(vm, undefined, 2)}`);
 
-	//TBD: extract Issue info from context
+	var workItemTrackingApi = getWorkItemTrackingApi(env.ado_token, env.ado_organization);
+	var results = findWorkItem(workItemTrackingApi, vm.number, vm.respository, env.ado_project)
+	
 	//TBD: createIssue()
 } catch (error) {
 	core.setFailed(error.message);
