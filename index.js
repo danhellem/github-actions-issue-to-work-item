@@ -2,6 +2,24 @@ const core = require(`@actions/core`);
 const github = require(`@actions/github`);
 const azdev = require(`azure-devops-node-api`);
 
+var payloadVm = {
+	action: "",
+	url: "",
+	number: -1,
+	title: "",
+	state: "",
+	user: "",
+	body: "",
+	repo_fullname: "",
+	repo_name: "",
+	repo_url: "",
+	closed_at: null,
+	label: "",
+	comment: "",
+	organization: "",
+	repsitory: ""
+};
+
 // create Work Item via https://docs.microsoft.com/en-us/rest/api/azure/devops/
 async function createIssue(
 	token,
@@ -32,6 +50,13 @@ async function createIssue(
 	);
 }
 
+function getValuesFromPayload(payload) {
+	payloadVm.action = payload.actiom != null ? payload.action : "";
+	payloadVm.url = payload.issue.html_url != null ? payload.issue.html_url : "";
+
+	return payloadVm;
+}
+
 try {
 	let context = github.context;
 
@@ -41,8 +66,12 @@ try {
 	console.log(`ado-project: ${env.ado_project}`);
 	console.log(`ado-wit: ${env.ado_wit}`);
 
-	const payload = JSON.stringify(github.context.payload, undefined, 2);
-	console.log(`The event payload: ${payload}`);
+	console.log("Full payload...");
+	console.log(`${JSON.stringify(github.context.payload, undefined, 2)}`);
+
+	var vm = this.getValuesFromPayload(github.context.payload);
+	console.log("View Model...");
+	console.log(`${JSON.stringify(vm, undefined, 2)}`);
 
 	//TBD: extract Issue info from context
 	//TBD: createIssue()
