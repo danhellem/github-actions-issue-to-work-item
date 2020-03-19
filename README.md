@@ -14,7 +14,7 @@ The id of the Work Item created
 2. Add a workflow file which responds to Pull Requests, customizing the ORG_URL and PROJECT_NAME properties:
 
 ```yaml
-name: Check for vulnerabilities
+name: Create Work Item from Issue
 
 'on':
   issues:
@@ -26,8 +26,8 @@ jobs:
     steps:
     - uses: danhellem/github-actions-issue-to-work-item@master
       env:
-        GITHUB_TOKEN: '${{ secrets.PERSONAL_TOKEN }}'
-        AZURE_PERSONAL_ACCESS_TOKEN: '${{ secrets.AZURE_PERSONAL_ACCESS_TOKEN }}'
-        ORG_URL: 'https://dev.azure.com/your_org_name'
-        PROJECT_NAME: 'your_project_name'
+        github-token: '${{ secrets.PERSONAL_TOKEN }}'
+        ado-token: '${{ secrets.AZURE_PERSONAL_ACCESS_TOKEN }}'
+        ado-organization: 'https://dev.azure.com/your_org_name'
+        ado-project: 'your_project_name'
 ```
