@@ -64,9 +64,9 @@ function getValuesFromPayload(payload) {
 		repo_name: payload.repository.name != undefined ? payload.repository.name : "",
 		repo_url: payload.repository.html_url != undefined ? payload.repository.html_url : "",
 		closed_at: payload.issue.closed_at != undefined ? payload.issue.closed_at : null,
-		label: payload.label.name != undefined ? payload.label.name : "",
-		comment_text: payload.comment.body != undefined ? payload.comment.body : "",
-		comment_url: payload.comment.html_url != undefined ? payload.comment.html_url : "",
+		label: "",
+		comment_text: "",
+		comment_url: "",
 		organization: function() {
 			var split = payload.repository.full_name.split('/');
 			return split[0];
@@ -76,6 +76,16 @@ function getValuesFromPayload(payload) {
 			return split[1];
 		}
 	};
+
+	if (payload.label != undefined) {
+		vm.label = payload.label.name != undefined ? payload.label.name : "";
+	}
+
+	// prettier-ignore
+	if (payload.comment != undefined) {
+		vm.comment_text = payload.comment.body != undefined ? payload.comment.body : "";
+		vm.comment_url = payload.comment.html_url != undefined ? payload.comment.html_url : "";
+	}
 
 	return vm;
 }
