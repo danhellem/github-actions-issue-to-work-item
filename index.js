@@ -2,24 +2,6 @@ const core = require(`@actions/core`);
 const github = require(`@actions/github`);
 const azdev = require(`azure-devops-node-api`);
 
-var payloadVm = {
-	action: "",
-	url: "",
-	number: -1,
-	title: "",
-	state: "",
-	user: "",
-	body: "",
-	repo_fullname: "",
-	repo_name: "",
-	repo_url: "",
-	closed_at: null,
-	label: "",
-	comment: "",
-	organization: "",
-	repsitory: ""
-};
-
 // create Work Item via https://docs.microsoft.com/en-us/rest/api/azure/devops/
 async function createIssue(
 	token,
@@ -67,24 +49,27 @@ function getValuesFromPayload(payload) {
 		label: "",
 		comment_text: "",
 		comment_url: "",
-		organization: function() {
-			var split = payload.repository.full_name.split('/');
-			return split[0];
-		},
-		repository: function() {
-			var split = payload.repository.full_name.split('/');
-			return split[1];
-		}
+		organization: "",
+		respository: ""		
 	};
 
+	// label is not always part of the payload
 	if (payload.label != undefined) {
 		vm.label = payload.label.name != undefined ? payload.label.name : "";
 	}
 
+	// comments are not always part of the payload
 	// prettier-ignore
 	if (payload.comment != undefined) {
 		vm.comment_text = payload.comment.body != undefined ? payload.comment.body : "";
 		vm.comment_url = payload.comment.html_url != undefined ? payload.comment.html_url : "";
+	}
+
+	// split repo full name to get the org and repository names
+	if (vm.repo_fullname != "") {
+		var split = payload.repository.full_name.split("/");
+		vm.organization = split[0];
+		vm.repsitory = split[1];
 	}
 
 	return vm;
