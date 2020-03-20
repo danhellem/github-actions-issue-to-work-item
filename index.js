@@ -166,6 +166,9 @@ async function main() {
 			console.log("No work item found, creating work item from issue")
 			workItem = await createWorkItem(vm);
 		}
+		else {
+			console.log(`Workitem '${workItem.Id}' found`);
+		}
 
 		//TBD: handle updates and edge cases
 	} catch (error) {
