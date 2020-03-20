@@ -56,11 +56,7 @@ async function createWorkItem(vm) {
 		}
 	];
 
-	console.log("");
-	console.log("Create work item Patch Document...");
-	console.log(patchDocument);
-
-	let workItemSaveResult = await workapi.createWorkItem(
+	let workItemSaveResult = await client.createWorkItem(
 		(customHeaders = []),
 		(document = patchDocument),
 		(project = _adoHelper.project),
@@ -80,8 +76,6 @@ async function findWorkItem(number, repository) {
 	let client = await connection.getWorkItemTrackingApi();
 
 	let teamContext = { project: _adoHelper.project };
-	let result = null;
-
 	let wiql = {
 		query:
 			"SELECT [System.Id], [System.WorkItemType], [System.Description], [System.Title], [System.AssignedTo], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" +
@@ -91,30 +85,16 @@ async function findWorkItem(number, repository) {
 			"'"
 	};
 
-	console.log("");
-	console.log("WIQL...");
-	console.log(wiql);
-
-	// prettier-ignore
-
 	let queryResult = await client.queryByWiql(wiql, teamContext);
-	let workItem =
-		queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
+	let workItem = queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
 
-	console.log("");
-	console.log("queryResult workItem...");
-	console.log(workItem);
-
-	result =
-		workItem != null
-			? await client.getWorkItem(workItem.id, null, null, 4)
-			: null;
-
-	console.log("");
-	console.log("getWorkItem result...");
-	console.log(result);
-
-	return await result;
+	if (workItem != null) {
+		var result = await client.getWorkItem(workItem.id, null, null, 4);
+		return result;
+	}
+	else {
+		return null;
+	}
 }
 
 function getValuesFromPayload(payload) {
@@ -135,7 +115,7 @@ function getValuesFromPayload(payload) {
 		comment_text: "",
 		comment_url: "",
 		organization: "",
-		repository: ""		
+		repository: ""
 	};
 
 	// label is not always part of the payload
@@ -160,47 +140,37 @@ function getValuesFromPayload(payload) {
 	return vm;
 }
 
-try {
-	let context = github.context;
+async function main() {
+	try {
+		const context = github.context;
+		const env = process.env;
 
-	const env = process.env;
+		_adoHelper.organization = env.ado_organization != undefined ? env.ado_organization : "";
+		_adoHelper.orgUrl = _adoHelper.organization != undefined ? "https://dev.azure.com/" + _adoHelper.organization : "";
+		_adoHelper.token = env.ado_token != undefined ? env.ado_token : "";
+		_adoHelper.project = env.ado_project != undefined ? env.ado_project : "";
+		_adoHelper.wit = env.ado_wit != undefined ? env.ado_wit : "";
 
-	// prettier-ignore
-	_adoHelper.organization = env.ado_organization != undefined ? env.ado_organization : "";
-	// prettier-ignore
-	_adoHelper.orgUrl = env.ado_organization != undefined ? "https://dev.azure.com/" + env.ado_organization : "";
-	_adoHelper.token = env.ado_token != undefined ? env.ado_token : "";
-	_adoHelper.project = env.ado_project != undefined ? env.ado_project : "";
-	_adoHelper.wit = env.ado_wit != undefined ? env.ado_wit : "";
+		// todo: validate we have all the right inputs		
 
-	// todo: validate we have all the right inputs
+		console.log("Set values from payload");
+		const vm = getValuesFromPayload(github.context.payload);
 
-	console.log("");
-	console.log("Full payload...");
-	//console.log(github.context.payload);
+		// go check to see if work item already exists in ado or not
+		// based on the title and tags		
+		console.log("Check to see if work item already exists");
+		let workItem = await findWorkItem(vm.number, vm.repository);
 
-	let vm = getValuesFromPayload(github.context.payload);
-	//console.log("View Model...");
-	//console.log(`${JSON.stringify(vm, undefined, 2)}`);
+		// if a work item was not found, go create one
+		if (workItem === null) {
+			console.log("No work item found, creating work item from issue")
+			workItem = await createWorkItem(vm);
+		}
 
-	console.log("");
-	console.log("Payload viewModel...");
-	console.log(vm);
-
-	// go check to see if work item already exists in ado or not
-	// based on the title and tags
-	let workItem = findWorkItem(vm.number, vm.repository);
-
-	console.log("");
-	console.log("findWorkItem...");
-	console.log(workItem);
-
-	// if a work item was not found, go create one
-	if (workItem === null) {
-		//workItem = createWorkItem(vm);
+		//TBD: handle updates and edge cases
+	} catch (error) {
+		core.setFailed(error.message);
 	}
-
-	//TBD: handle updates and edge cases
-} catch (error) {
-	core.setFailed(error.message);
 }
+
+main();
