@@ -167,7 +167,7 @@ async function main() {
 			workItem = await createWorkItem(vm);
 		}
 		else {
-			console.log(`Workitem '${workItem.Id}' found`);
+			console.log(`Existing work item found: ${workItem.id}`);
 		}
 
 		//TBD: handle updates and edge cases
