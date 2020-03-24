@@ -12,8 +12,8 @@ jobs:
     - uses: danhellem/github-actions-issue-to-work-item@master
       env:     
         ado_token: '${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}'
-        ado_organization: 'privatepreview'
-        ado_project: 'Agile 1'
-        ado_wit: 'User Story' 
+        ado_organization: '${{ secrets.ADO_ORGANIZATION }}'
+        ado_project: '${{ secrets.ADO_PROJECT }}'
+        ado_wit: 'GitHub Issue' 
         ado_new_state: 'New'
-        ado_close_state: 'close'
+        ado_close_state: 'Closed'
