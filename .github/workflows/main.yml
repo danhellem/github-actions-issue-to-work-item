@@ -11,7 +11,6 @@ jobs:
     steps:       
     - uses: danhellem/github-actions-issue-to-work-item@master
       env:
-        github_token: 'temp'
         ado_token: '${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}'
         ado_organization: 'privatepreview'
         ado_project: 'Agile 1'
