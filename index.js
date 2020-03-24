@@ -2,20 +2,95 @@ const core = require(`@actions/core`);
 const github = require(`@actions/github`);
 const azdev = require(`azure-devops-node-api`);
 
-var _adoHelper = {
-	organization: "",
-	orgUrl: "",
-	token: "",
-	project: "",
-	wit: ""
-};
+const debug = false; // debug mode for testing...always set to false before doing a commit
+const testPayload = []; // used for debugging, cut and paste payload
+
+main();
+
+async function main() {
+	try {
+		const context = github.context;
+		const env = process.env;
+
+		let vm = [];
+
+		if (debug) {
+			// manually set when debugging
+			env.ado_organization = "{organization}";
+			env.ado_token = "{token}";
+			env.ado_project = "{project name}";
+			env.ado_wit = "User Story";
+			env.ado_close_state = "Closed";
+			env.aod_new_state = "New";
+
+			console.log("Set values from test payload");
+			vm = getValuesFromPayload(testPayload, env);
+		} else {
+			console.log("Set values from payload & env");
+			vm = getValuesFromPayload(github.context.payload, env);
+		}
+
+		// todo: validate we have all the right inputs
+
+		// go check to see if work item already exists in azure devops or not
+		// based on the title and tags
+		console.log("Check to see if work item already exists");
+		let workItem = await find(vm);
+
+		// if a work item was not found, go create one
+		if (workItem === null) {
+			console.log("No work item found, creating work item from issue");
+			workItem = await create(vm);
+		} else {
+			console.log(`Existing work item found: ${workItem.id}`);
+		}
+
+		// create right patch document depending on the action tied to the issue
+		// update the work item
+		switch (vm.action) {
+			case "opened":
+				workItem === null ? await create(vm) : "";
+				break;
+			case "edited":
+				workItem != null ? await update(vm, workItem) : "";
+				break;
+			case "created": // adding a comment to an issue
+				workItem != null ? await comment(vm, workItem) : "";
+				break;
+			case "closed":
+				workItem != null ? await close(vm, workItem) : "";
+				break;
+			case "reopened":
+				workItem != null ? await reopen(vm, workItem) : "";
+				break;
+			case "assigned":
+				console.log("assigned action is not yet implemented");
+				break;
+			case "labeled":
+				workItem != null ? await label(vm, workItem) : "";
+				break;
+			case "unlabeled":
+				console.log("unlable action is not yet implemented");
+				break;
+			case "deleted":
+				console.log("deleted action is not yet implemented");
+				break;
+			default:
+				console.log(`Unhandled action: ${vm.action}`);
+		}
+
+		// set output message
+		if (workItem != null || workItem != undefined) {
+			console.log(`Work item successfully created or updated: ${workItem.id}`);
+			core.setOutput(`id`, `${workItem.id}`);
+		}
+	} catch (error) {
+		core.setFailed(error.message);
+	}
+}
 
 // create Work Item via https://docs.microsoft.com/en-us/rest/api/azure/devops/
-async function createWorkItem(vm) {
-	let authHandler = azdev.getPersonalAccessTokenHandler(_adoHelper.token);
-	let connection = new azdev.WebApi(_adoHelper.orgUrl, authHandler);
-	let client = await connection.getWorkItemTrackingApi();
-
+async function create(vm) {
 	let patchDocument = [
 		{
 			op: "add",
@@ -56,48 +131,204 @@ async function createWorkItem(vm) {
 		}
 	];
 
+	let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.token);
+	let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
+	let client = await connection.getWorkItemTrackingApi();
+
 	let workItemSaveResult = await client.createWorkItem(
 		(customHeaders = []),
 		(document = patchDocument),
-		(project = _adoHelper.project),
-		(type = _adoHelper.wit)
+		(project = vm.env.project),
+		(type = vm.env.wit)
 	);
-
-	console.log("");
-	console.log("Create work save result...");
-	console.log(workItemSaveResult);
 
 	return workItemSaveResult;
 }
 
-async function findWorkItem(number, repository) {
-	let authHandler = azdev.getPersonalAccessTokenHandler(_adoHelper.token);
-	let connection = new azdev.WebApi(_adoHelper.orgUrl, authHandler);
-	let client = await connection.getWorkItemTrackingApi();
+// update existing working item
+async function update(vm, workItem) {
+	let patchDocument = [];
 
-	let teamContext = { project: _adoHelper.project };
-	let wiql = {
-		query:
-			"SELECT [System.Id], [System.WorkItemType], [System.Description], [System.Title], [System.AssignedTo], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" +
-			number +
-			")' AND [System.Tags] CONTAINS 'GitHub Issue' AND [System.Tags] CONTAINS '" +
-			repository +
-			"'"
-	};
-
-	let queryResult = await client.queryByWiql(wiql, teamContext);
-	let workItem = queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
-
-	if (workItem != null) {
-		var result = await client.getWorkItem(workItem.id, null, null, 4);
-		return result;
+	if (
+		workItem.fields["System.Title"] !=
+		`${vm.title} (GitHub Issue #${vm.number})`
+	) {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.Title",
+			value: vm.title + " (GitHub Issue #" + vm.number + ")"
+		});
 	}
-	else {
+
+	if (workItem.fields["System.Description"] != vm.body) {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.Description",
+			value: vm.body
+		});
+	}
+
+	if (patchDocument.length > 0) {
+		return await updateWorkItem(patchDocument, workItem.id, vm.env);
+	} else {
 		return null;
 	}
 }
 
-function getValuesFromPayload(payload) {
+// add comment to an existing work item
+async function comment(vm, workItem) {
+	let patchDocument = [];
+
+	if (vm.comment_text != "") {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.History",
+			value:
+				'<a href="' +
+				vm.comment_url +
+				'" target="_new">GitHub Comment Added</a></br></br>' +
+				vm.comment_text
+		});
+	}
+
+	if (patchDocument.length > 0) {
+		return await updateWorkItem(patchDocument, workItem.id, vm.env);
+	} else {
+		return null;
+	}
+}
+
+// close work item
+async function close(vm, workItem) {
+	let patchDocument = [];
+
+	patchDocument.push({
+		op: "add",
+		path: "/fields/System.State",
+		value: vm.env.closedState
+	});
+
+	if (vm.comment_text != "") {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.History",
+			value:
+				'<a href="' +
+				vm.comment_url +
+				'" target="_new">GitHub Comment Added</a></br></br>' +
+				vm.comment_text
+		});
+	}
+
+	if (vm.closed_at != "") {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.History",
+			value:
+				'GitHub <a href="' +
+				vm.url +
+				'" target="_new">issue #' +
+				vm.number +
+				"</a> was closed on " +
+				vm.closed_at
+		});
+	}
+
+	if (patchDocument.length > 0) {
+		return await updateWorkItem(patchDocument, workItem.id, vm.env);
+	} else {
+		return null;
+	}
+}
+
+// reopen existing work item
+async function reopen(vm, workItem) {
+	let patchDocument = [];
+
+	patchDocument.push({
+		op: "add",
+		path: "/fields/System.State",
+		value: vm.env.newState
+	});
+
+	patchDocument.push({
+		op: "add",
+		path: "/fields/System.History",
+		value: "Issue reopened"
+	});
+
+	if (patchDocument.length > 0) {
+		return await updateWorkItem(patchDocument, workItem.id, vm.env);
+	} else {
+		return null;
+	}
+}
+
+// add new label to existing work item
+async function label(vm, workItem) {
+	let patchDocument = [];
+
+	if (!workItem.fields["System.Tags"].includes(vm.label)) {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.Tags",
+			value: workItem.fields["System.Tags"] + ", " + vm.label
+		});
+	}
+
+	if (patchDocument.length > 0) {
+		return await updateWorkItem(patchDocument, workItem.id, vm.env);
+	} else {
+		return null;
+	}
+}
+
+// find work item to see if it already exists
+async function find(vm) {
+	let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.token);
+	let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
+	let client = await connection.getWorkItemTrackingApi();
+
+	let teamContext = { project: vm.env.project };
+	let wiql = {
+		query:
+			"SELECT [System.Id], [System.WorkItemType], [System.Description], [System.Title], [System.AssignedTo], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" +
+			vm.number +
+			")' AND [System.Tags] CONTAINS 'GitHub Issue' AND [System.Tags] CONTAINS '" +
+			vm.repository +
+			"'"
+	};
+
+	let queryResult = await client.queryByWiql(wiql, teamContext);
+	let workItem =
+		queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
+
+	if (workItem != null) {
+		var result = await client.getWorkItem(workItem.id, null, null, 4);
+		return result;
+	} else {
+		return null;
+	}
+}
+
+// standard updateWorkItem call used for all updates
+async function updateWorkItem(patchDocument, id, env) {
+	let authHandler = azdev.getPersonalAccessTokenHandler(env.token);
+	let connection = new azdev.WebApi(env.orgUrl, authHandler);
+	let client = await connection.getWorkItemTrackingApi();
+
+	let workItemSaveResult = await client.updateWorkItem(
+		(customHeaders = []),
+		(document = patchDocument),
+		id,
+		(project = env.project)
+	);
+
+	return workItemSaveResult;
+}
+
+// get object values from the payload that will be used for logic, updates, finds, and creates
+function getValuesFromPayload(payload, env) {
 	// prettier-ignore
 	var vm = {
 		action: payload.action != undefined ? payload.action : "",
@@ -115,7 +346,16 @@ function getValuesFromPayload(payload) {
 		comment_text: "",
 		comment_url: "",
 		organization: "",
-		repository: ""
+		repository: "",
+		env: { 
+			organization: env.ado_organization != undefined ? env.ado_organization : "",
+			orgUrl: env.ado_organization != undefined ? "https://dev.azure.com/" + env.ado_organization : "",
+			token: env.ado_token != undefined ? env.ado_token : "",
+			project: env.ado_project != undefined ? env.ado_project : "",
+			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
+			closedState: env.closed_state != undefined ? env.closedState : "Closed",
+			newState: env.new_state != undefined ? env.newState : "New"
+		}
 	};
 
 	// label is not always part of the payload
@@ -139,41 +379,3 @@ function getValuesFromPayload(payload) {
 
 	return vm;
 }
-
-async function main() {
-	try {
-		const context = github.context;
-		const env = process.env;
-
-		_adoHelper.organization = env.ado_organization != undefined ? env.ado_organization : "";
-		_adoHelper.orgUrl = _adoHelper.organization != undefined ? "https://dev.azure.com/" + _adoHelper.organization : "";
-		_adoHelper.token = env.ado_token != undefined ? env.ado_token : "";
-		_adoHelper.project = env.ado_project != undefined ? env.ado_project : "";
-		_adoHelper.wit = env.ado_wit != undefined ? env.ado_wit : "";
-
-		// todo: validate we have all the right inputs		
-
-		console.log("Set values from payload");
-		const vm = getValuesFromPayload(github.context.payload);
-
-		// go check to see if work item already exists in ado or not
-		// based on the title and tags		
-		console.log("Check to see if work item already exists");
-		let workItem = await findWorkItem(vm.number, vm.repository);
-
-		// if a work item was not found, go create one
-		if (workItem === null) {
-			console.log("No work item found, creating work item from issue")
-			workItem = await createWorkItem(vm);
-		}
-		else {
-			console.log(`Existing work item found: ${workItem.id}`);
-		}
-
-		//TBD: handle updates and edge cases
-	} catch (error) {
-		core.setFailed(error.message);
-	}
-}
-
-main();
