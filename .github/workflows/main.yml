@@ -1,4 +1,4 @@
-name: Create Work Item in Azure DevOps from Issue
+name: Sync Issue to Azure DevOps work item
 
 on:
   issues:
@@ -10,9 +10,10 @@ jobs:
     name: Testing workflow
     steps:       
     - uses: danhellem/github-actions-issue-to-work-item@master
-      env:
-        github_token: 'temp'
+      env:     
         ado_token: '${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}'
         ado_organization: 'privatepreview'
         ado_project: 'Agile 1'
         ado_wit: 'User Story' 
+        ado_new_state: 'New'
+        ado_close_state: 'close'
