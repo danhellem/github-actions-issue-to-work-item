@@ -1,4 +1,4 @@
-name: "Action to Sync your GitHub Issues to Azure DevOps when an Issue is created or updated."
+name: "Sync your GitHub Issues to Azure DevOps when an Issue is created or updated."
 description: "Manage your GitHub issues in Azure DevOps. This action will Sync your GitHub Issue to Azure Boards when an Issue is created or updated."
 author: "danhellem"
 branding:
