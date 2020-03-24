@@ -1,6 +1,7 @@
 # GitHub Issue to Work Item
 
 Create work item in Azure DevOps when a GitHub Issue is created
+
 Update Azure DevOps work item when a GitHub Issue is updated
 
 ## Outputs
