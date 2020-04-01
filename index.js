@@ -75,6 +75,9 @@ async function main() {
 			case "deleted":
 				console.log("deleted action is not yet implemented");
 				break;
+			case "transferred":
+				console.log("transferred action is not yet implemented");
+				break;
 			default:
 				console.log(`Unhandled action: ${vm.action}`);
 		}
@@ -139,7 +142,9 @@ async function create(vm) {
 		(customHeaders = []),
 		(document = patchDocument),
 		(project = vm.env.project),
-		(type = vm.env.wit)
+		(type = vm.env.wit),
+		(validateOnly = false),
+		(bypassRules = true)
 	);
 
 	return workItemSaveResult;
@@ -320,8 +325,10 @@ async function updateWorkItem(patchDocument, id, env) {
 	let workItemSaveResult = await client.updateWorkItem(
 		(customHeaders = []),
 		(document = patchDocument),
-		id,
-		(project = env.project)
+		(id = id),
+		(project = env.project),
+		(validateOnly = false),
+		(bypassRules = true)
 	);
 
 	return workItemSaveResult;
