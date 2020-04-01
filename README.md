@@ -17,10 +17,9 @@ The id of the Work Item created or updated
 1. Add a Secret named `ADO_PERSONAL_ACCESS_TOKEN` containing an [Azure Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate) with "read & write" permission for Work Items
 
 2. Add a workflow file which responds to issue events.
-
-   Set Azure DevOps organization and project details.
-
-   Set specific work item type settings (type, new state, closed state)
+   - Set Azure DevOps organization and project details.
+   - Set specific work item type settings (type, new state, closed state)
+   - Area Path is optional
 
 ```yaml
 name: Sync issue to Azure DevOps work item
@@ -39,6 +38,7 @@ jobs:
           ado_token: "${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}"
           ado_organization: "ado_organization_name"
           ado_project: "your_project_name"
+          ado_area_path: ""
           ado_wit: "Issue"
           ado_new_state: "To Do"
           ado_close_state: "Done"
