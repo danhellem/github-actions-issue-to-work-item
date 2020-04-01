@@ -21,9 +21,9 @@ async function main() {
 			env.ado_project = "{project name}";
 			env.ado_wit = "User Story";
 			env.ado_close_state = "Closed";
-			env.aod_new_state = "New";
+			env.ado_new_state = "New";
 
-			console.log("Set values from test payload");
+			env.console.log("Set values from test payload");
 			vm = getValuesFromPayload(testPayload, env);
 		} else {
 			console.log("Set values from payload & env");
@@ -133,6 +133,15 @@ async function create(vm) {
 			}
 		}
 	];
+
+	// if area path is not empty, set it
+	if (vm.env.areaPath != "") {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.AreaPath",
+			value: vm.env.areaPath
+		});
+	}
 
 	let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.token);
 	let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
@@ -359,9 +368,10 @@ function getValuesFromPayload(payload, env) {
 			orgUrl: env.ado_organization != undefined ? "https://dev.azure.com/" + env.ado_organization : "",
 			token: env.ado_token != undefined ? env.ado_token : "",
 			project: env.ado_project != undefined ? env.ado_project : "",
+			areaPath: env.ado_area_path != undefined ? env.ado_area_path : "",
 			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
-			closedState: env.closed_state != undefined ? env.closedState : "Closed",
-			newState: env.new_state != undefined ? env.newState : "New"
+			closedState: env.ado_close_state != undefined ? env.ado_close_state : "Closed",
+			newState: env.ado_new_state != undefined ? env.ado_new_State : "New",
 		}
 	};
 
