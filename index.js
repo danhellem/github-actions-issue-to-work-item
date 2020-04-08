@@ -17,13 +17,13 @@ async function main() {
 		if (debug) {
 			// manually set when debugging
 			env.ado_organization = "{organization}";
-			env.ado_token = "{token}";
-			env.ado_project = "{project name}";
+			env.ado_token = "{personal access token}";
+			env.ado_project = "{project}";
 			env.ado_wit = "User Story";
 			env.ado_close_state = "Closed";
 			env.ado_new_state = "New";
 
-			env.console.log("Set values from test payload");
+			console.log("Set values from test payload");
 			vm = getValuesFromPayload(testPayload, env);
 		} else {
 			console.log("Set values from payload & env");
@@ -70,7 +70,7 @@ async function main() {
 				workItem != null ? await label(vm, workItem) : "";
 				break;
 			case "unlabeled":
-				console.log("unlable action is not yet implemented");
+				workItem != null ? await unlabel(vm, workItem) : "";
 				break;
 			case "deleted":
 				console.log("deleted action is not yet implemented");
@@ -98,17 +98,17 @@ async function create(vm) {
 		{
 			op: "add",
 			path: "/fields/System.Title",
-			value: vm.title + " (GitHub Issue #" + vm.number + ")"
+			value: vm.title + " (GitHub Issue #" + vm.number + ")",
 		},
 		{
 			op: "add",
 			path: "/fields/System.Description",
-			value: vm.body
+			value: vm.body,
 		},
 		{
 			op: "add",
 			path: "/fields/System.Tags",
-			value: "GitHub Issue; " + vm.repo_name
+			value: "GitHub Issue; " + vm.repo_name,
 		},
 		{
 			op: "add",
@@ -122,16 +122,16 @@ async function create(vm) {
 				vm.repo_url +
 				'" target="_new">' +
 				vm.repo_fullname +
-				"</a>"
+				"</a>",
 		},
 		{
 			op: "add",
 			path: "/relations/-",
 			value: {
 				rel: "Hyperlink",
-				url: vm.url
-			}
-		}
+				url: vm.url,
+			},
+		},
 	];
 
 	// if area path is not empty, set it
@@ -139,7 +139,7 @@ async function create(vm) {
 		patchDocument.push({
 			op: "add",
 			path: "/fields/System.AreaPath",
-			value: vm.env.areaPath
+			value: vm.env.areaPath,
 		});
 	}
 
@@ -170,7 +170,7 @@ async function update(vm, workItem) {
 		patchDocument.push({
 			op: "add",
 			path: "/fields/System.Title",
-			value: vm.title + " (GitHub Issue #" + vm.number + ")"
+			value: vm.title + " (GitHub Issue #" + vm.number + ")",
 		});
 	}
 
@@ -178,7 +178,7 @@ async function update(vm, workItem) {
 		patchDocument.push({
 			op: "add",
 			path: "/fields/System.Description",
-			value: vm.body
+			value: vm.body,
 		});
 	}
 
@@ -201,7 +201,7 @@ async function comment(vm, workItem) {
 				'<a href="' +
 				vm.comment_url +
 				'" target="_new">GitHub Comment Added</a></br></br>' +
-				vm.comment_text
+				vm.comment_text,
 		});
 	}
 
@@ -219,7 +219,7 @@ async function close(vm, workItem) {
 	patchDocument.push({
 		op: "add",
 		path: "/fields/System.State",
-		value: vm.env.closedState
+		value: vm.env.closedState,
 	});
 
 	if (vm.comment_text != "") {
@@ -230,7 +230,7 @@ async function close(vm, workItem) {
 				'<a href="' +
 				vm.comment_url +
 				'" target="_new">GitHub Comment Added</a></br></br>' +
-				vm.comment_text
+				vm.comment_text,
 		});
 	}
 
@@ -244,7 +244,7 @@ async function close(vm, workItem) {
 				'" target="_new">issue #' +
 				vm.number +
 				"</a> was closed on " +
-				vm.closed_at
+				vm.closed_at,
 		});
 	}
 
@@ -262,13 +262,13 @@ async function reopen(vm, workItem) {
 	patchDocument.push({
 		op: "add",
 		path: "/fields/System.State",
-		value: vm.env.newState
+		value: vm.env.newState,
 	});
 
 	patchDocument.push({
 		op: "add",
 		path: "/fields/System.History",
-		value: "Issue reopened"
+		value: "Issue reopened",
 	});
 
 	if (patchDocument.length > 0) {
@@ -286,7 +286,28 @@ async function label(vm, workItem) {
 		patchDocument.push({
 			op: "add",
 			path: "/fields/System.Tags",
-			value: workItem.fields["System.Tags"] + ", " + vm.label
+			value: workItem.fields["System.Tags"] + ", " + vm.label,
+		});
+	}
+
+	if (patchDocument.length > 0) {
+		return await updateWorkItem(patchDocument, workItem.id, vm.env);
+	} else {
+		return null;
+	}
+}
+
+async function unlabel(vm, workItem) {
+	let patchDocument = [];
+
+	if (workItem.fields["System.Tags"].includes(vm.label)) {
+		var str = workItem.fields["System.Tags"];
+		var res = str.replace(vm.label + "; ", "");
+
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.Tags",
+			value: res,
 		});
 	}
 
@@ -310,7 +331,7 @@ async function find(vm) {
 			vm.number +
 			")' AND [System.Tags] CONTAINS 'GitHub Issue' AND [System.Tags] CONTAINS '" +
 			vm.repository +
-			"'"
+			"'",
 	};
 
 	let queryResult = await client.queryByWiql(wiql, teamContext);
