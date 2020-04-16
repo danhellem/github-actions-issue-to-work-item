@@ -17,8 +17,9 @@ async function main() {
 		if (debug) {
 			// manually set when debugging
 			env.ado_organization = "{organization}";
-			env.ado_token = "{personal access token}";
-			env.ado_project = "{project}";
+			env.ado_token = "{ado_token}";
+			env.github_token = "{github_token}";
+			env.ado_project = "{project name}";
 			env.ado_wit = "User Story";
 			env.ado_close_state = "Closed";
 			env.ado_new_state = "New";
@@ -36,11 +37,15 @@ async function main() {
 		// based on the title and tags
 		console.log("Check to see if work item already exists");
 		let workItem = await find(vm);
+		let issue = "";
 
 		// if a work item was not found, go create one
 		if (workItem === null) {
 			console.log("No work item found, creating work item from issue");
 			workItem = await create(vm);
+
+			// link the issue to the work item via AB# syntax with AzureBoards+GitHub App
+			issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItem) : "";
 		} else {
 			console.log(`Existing work item found: ${workItem.id}`);
 		}
@@ -143,7 +148,7 @@ async function create(vm) {
 		});
 	}
 
-	let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.token);
+	let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.adoToken);
 	let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
 	let client = await connection.getWorkItemTrackingApi();
 
@@ -320,7 +325,7 @@ async function unlabel(vm, workItem) {
 
 // find work item to see if it already exists
 async function find(vm) {
-	let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.token);
+	let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.adoToken);
 	let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
 	let client = await connection.getWorkItemTrackingApi();
 
@@ -348,7 +353,7 @@ async function find(vm) {
 
 // standard updateWorkItem call used for all updates
 async function updateWorkItem(patchDocument, id, env) {
-	let authHandler = azdev.getPersonalAccessTokenHandler(env.token);
+	let authHandler = azdev.getPersonalAccessTokenHandler(env.adoToken);
 	let connection = new azdev.WebApi(env.orgUrl, authHandler);
 	let client = await connection.getWorkItemTrackingApi();
 
@@ -362,6 +367,28 @@ async function updateWorkItem(patchDocument, id, env) {
 	);
 
 	return workItemSaveResult;
+}
+
+// update the GH issue body to include the AB# so that we link the Work Item to the Issue
+// this should only get called when the issue is created
+async function updateIssueBody(vm, workItem) {
+	var n = vm.body.includes("AB#" + workItem.id.toString());
+
+	if (!n) {
+		const octokit = new github.GitHub(vm.env.ghToken);
+		vm.body = vm.body + "\r\n\r\nAB#" + workItem.id.toString();
+
+		var result = await octokit.issues.update({
+			owner: vm.owner,
+			repo: vm.repository,
+			issue_number: vm.number,
+			body: vm.body,
+		});
+
+		return result;
+	}
+
+	return null;
 }
 
 // get object values from the payload that will be used for logic, updates, finds, and creates
@@ -379,6 +406,7 @@ function getValuesFromPayload(payload, env) {
 		repo_name: payload.repository.name != undefined ? payload.repository.name : "",
 		repo_url: payload.repository.html_url != undefined ? payload.repository.html_url : "",
 		closed_at: payload.issue.closed_at != undefined ? payload.issue.closed_at : null,
+		owner: payload.repository.owner != undefined ? payload.repository.owner.login : "",
 		label: "",
 		comment_text: "",
 		comment_url: "",
@@ -387,7 +415,8 @@ function getValuesFromPayload(payload, env) {
 		env: { 
 			organization: env.ado_organization != undefined ? env.ado_organization : "",
 			orgUrl: env.ado_organization != undefined ? "https://dev.azure.com/" + env.ado_organization : "",
-			token: env.ado_token != undefined ? env.ado_token : "",
+			adoToken: env.ado_token != undefined ? env.ado_token : "",
+			ghToken:  env.github_token != undefined ? env.github_token : "",
 			project: env.ado_project != undefined ? env.ado_project : "",
 			areaPath: env.ado_area_path != undefined ? env.ado_area_path : "",
 			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
