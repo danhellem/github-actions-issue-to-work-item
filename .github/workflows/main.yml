@@ -18,3 +18,4 @@ jobs:
         ado_wit: 'GitHub Issue' 
         ado_new_state: 'New'
         ado_close_state: 'Closed'
+        ado_bypassrules: true
