@@ -158,7 +158,7 @@ async function create(vm) {
 		(project = vm.env.project),
 		(type = vm.env.wit),
 		(validateOnly = false),
-		(bypassRules = true)
+		(bypassRules = vm.env.bypassRules)
 	);
 
 	return workItemSaveResult;
@@ -363,7 +363,7 @@ async function updateWorkItem(patchDocument, id, env) {
 		(id = id),
 		(project = env.project),
 		(validateOnly = false),
-		(bypassRules = true)
+		(bypassRules = env.bypassRules)
 	);
 
 	return workItemSaveResult;
@@ -422,6 +422,7 @@ function getValuesFromPayload(payload, env) {
 			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
 			closedState: env.ado_close_state != undefined ? env.ado_close_state : "Closed",
 			newState: env.ado_new_state != undefined ? env.ado_new_State : "New",
+			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false
 		}
 	};
 
