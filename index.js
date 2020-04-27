@@ -17,8 +17,8 @@ async function main() {
 		if (debug) {
 			// manually set when debugging
 			env.ado_organization = "{organization}";
-			env.ado_token = "{ado_token}";
-			env.github_token = "{github_token}";
+			env.ado_token = "{azure devops personal access token}";
+			env.github_token = "{github token}";
 			env.ado_project = "{project name}";
 			env.ado_wit = "User Story";
 			env.ado_close_state = "Closed";
@@ -39,10 +39,22 @@ async function main() {
 		let workItem = await find(vm);
 		let issue = "";
 
+		// if workItem == -1 then we have an error during find
+		if (workItem === -1) {
+			core.setFailed();
+			return;
+		}
+
 		// if a work item was not found, go create one
 		if (workItem === null) {
 			console.log("No work item found, creating work item from issue");
 			workItem = await create(vm);
+
+			// if workItem == -1 then we have an error during create
+			if (workItem === -1) {
+				core.setFailed();
+				return;
+			}
 
 			// link the issue to the work item via AB# syntax with AzureBoards+GitHub App
 			issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItem) : "";
@@ -93,7 +105,7 @@ async function main() {
 			core.setOutput(`id`, `${workItem.id}`);
 		}
 	} catch (error) {
-		core.setFailed(error.message);
+		core.setFailed(error);
 	}
 }
 
@@ -151,15 +163,36 @@ async function create(vm) {
 	let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.adoToken);
 	let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
 	let client = await connection.getWorkItemTrackingApi();
+	let workItemSaveResult = null;
 
-	let workItemSaveResult = await client.createWorkItem(
-		(customHeaders = []),
-		(document = patchDocument),
-		(project = vm.env.project),
-		(type = vm.env.wit),
-		(validateOnly = false),
-		(bypassRules = vm.env.bypassRules)
-	);
+	try {
+		workItemSaveResult = await client.createWorkItem(
+			(customHeaders = []),
+			(document = patchDocument),
+			(project = vm.env.project),
+			(type = vm.env.wit),
+			(validateOnly = false),
+			(bypassRules = vm.env.bypassRules)
+		);
+
+		// if result is null, save did not complete correctly
+		if (workItemSaveResult == null) {
+			workItemSaveResult = -1;
+
+			console.log("Error: creatWorkItem failed");
+			console.log(`WIT may not be correct: ${vm.env.wit}`);
+			core.setFailed();
+		}
+
+		return workItemSaveResult;
+	} catch (error) {
+		workItemSaveResult = -1;
+
+		console.log("Error: creatWorkItem failed");
+		console.log(patchDocument);
+		console.log(error);
+		core.setFailed(error);
+	}
 
 	return workItemSaveResult;
 }
@@ -327,9 +360,22 @@ async function unlabel(vm, workItem) {
 async function find(vm) {
 	let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.adoToken);
 	let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
-	let client = await connection.getWorkItemTrackingApi();
+	let client = null;
+	let workItem = null;
+	let queryResult = null;
+
+	try {
+		client = await connection.getWorkItemTrackingApi();
+	} catch (error) {
+		console.log(
+			"Error: Connecting to organization. Check the spelling of the organization name and ensure your token is scoped correctly."
+		);
+		core.setFailed(error);
+		return -1;
+	}
 
 	let teamContext = { project: vm.env.project };
+
 	let wiql = {
 		query:
 			"SELECT [System.Id], [System.WorkItemType], [System.Description], [System.Title], [System.AssignedTo], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" +
@@ -339,13 +385,33 @@ async function find(vm) {
 			"'",
 	};
 
-	let queryResult = await client.queryByWiql(wiql, teamContext);
-	let workItem =
-		queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
+	try {
+		queryResult = await client.queryByWiql(wiql, teamContext);
+
+		// if query results = null then i think we have issue with the project name
+		if (queryResult == null) {
+			console.log("Error: Project name appears to be invalid");
+			core.setFailed("Error: Project name appears to be invalid");
+			return -1;
+		}
+	} catch (error) {
+		console.log("Error: queryByWiql failure");
+		console.log(error);
+		core.setFailed(error);
+		return -1;
+	}
+
+	workItem = queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
 
 	if (workItem != null) {
-		var result = await client.getWorkItem(workItem.id, null, null, 4);
-		return result;
+		try {
+			var result = await client.getWorkItem(workItem.id, null, null, 4);
+			return result;
+		} catch (error) {
+			console.log("Error: getWorkItem failure");
+			core.setFailed(error);
+			return -1;
+		}
 	} else {
 		return null;
 	}
@@ -356,17 +422,24 @@ async function updateWorkItem(patchDocument, id, env) {
 	let authHandler = azdev.getPersonalAccessTokenHandler(env.adoToken);
 	let connection = new azdev.WebApi(env.orgUrl, authHandler);
 	let client = await connection.getWorkItemTrackingApi();
+	let workItemSaveResult = null;
 
-	let workItemSaveResult = await client.updateWorkItem(
-		(customHeaders = []),
-		(document = patchDocument),
-		(id = id),
-		(project = env.project),
-		(validateOnly = false),
-		(bypassRules = env.bypassRules)
-	);
+	try {
+		workItemSaveResult = await client.updateWorkItem(
+			(customHeaders = []),
+			(document = patchDocument),
+			(id = id),
+			(project = env.project),
+			(validateOnly = false),
+			(bypassRules = env.bypassRules)
+		);
 
-	return workItemSaveResult;
+		return workItemSaveResult;
+	} catch (error) {
+		console.log("Error: updateWorkItem failed");
+		console.log(patchDocument);
+		core.setFailed(error);
+	}
 }
 
 // update the GH issue body to include the AB# so that we link the Work Item to the Issue
