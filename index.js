@@ -485,11 +485,11 @@ function getValuesFromPayload(payload, env) {
 		comment_url: "",
 		organization: "",
 		repository: "",
-		env: { 
+		env: {
 			organization: env.ado_organization != undefined ? env.ado_organization : "",
 			orgUrl: env.ado_organization != undefined ? "https://dev.azure.com/" + env.ado_organization : "",
 			adoToken: env.ado_token != undefined ? env.ado_token : "",
-			ghToken:  env.github_token != undefined ? env.github_token : "",
+			ghToken: env.github_token != undefined ? env.github_token : "",
 			project: env.ado_project != undefined ? env.ado_project : "",
 			areaPath: env.ado_area_path != undefined ? env.ado_area_path : "",
 			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
