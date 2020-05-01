@@ -6,6 +6,8 @@ Create work item in Azure DevOps when a GitHub Issue is created
 
 Update Azure DevOps work item when a GitHub Issue is updated
 
+![alt text](./assets/demo.gif "animated demo")
+
 ## Outputs
 
 ### `id`
