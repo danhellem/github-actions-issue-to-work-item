@@ -244,6 +244,10 @@ async function assign(vm, workItem) {
 	
 			return updateWorkItem(patchDocument, workItem.id, vm.env);
 		}
+	})
+	.catch(error => {
+		console.log("Failed to map user ID.");
+		core.setFailed(error);
 	});
 }
 
