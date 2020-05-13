@@ -1,6 +1,8 @@
 const core = require(`@actions/core`);
 const github = require(`@actions/github`);
 const azdev = require(`azure-devops-node-api`);
+const fetch = require('node-fetch');
+const jp = require('jsonpath');
 
 const debug = false; // debug mode for testing...always set to false before doing a commit
 const testPayload = []; // used for debugging, cut and paste payload
@@ -23,7 +25,10 @@ async function main() {
 			env.ado_wit = "User Story";
 			env.ado_close_state = "Closed";
 			env.ado_new_state = "New";
-
+			env.id_mapping_url = "{id mapping api that ends with '/'. github username will be appended for the query}";
+			env.id_mapping_pat = "id mapping api's token";
+			env.id_mapping_query = "jsonpath query to get the unique id from the json response";
+	
 			console.log("Set values from test payload");
 			vm = getValuesFromPayload(testPayload, env);
 		} else {
@@ -81,7 +86,7 @@ async function main() {
 				workItem != null ? await reopen(vm, workItem) : "";
 				break;
 			case "assigned":
-				console.log("assigned action is not yet implemented");
+				workItem != null ? await assign(vm, workItem) : "";
 				break;
 			case "labeled":
 				workItem != null ? await label(vm, workItem) : "";
@@ -195,6 +200,51 @@ async function create(vm) {
 	}
 
 	return workItemSaveResult;
+}
+
+// update existing working item
+async function assign(vm, workItem) {
+
+	let patchDocument = [];
+
+	fetch(vm.env.idMappingUrl + vm.assignee, {
+		headers: { 
+			'Content-Type': 'application/json',
+			'api-version': '2019-10-01',
+			'Authorization': 'Basic ' + Buffer.from(':' + vm.env.idMappingPat).toString('base64'),
+		},
+    })
+    .then(res => res.json())
+	.then(json => {
+
+		var aadUser = jp.value(json, vm.env.idMappingQuery);
+		if (aadUser == undefined) {
+			console.log("User mapping for " + vm.assignee + " not found.");
+			core.setFailed(error.toString());
+		}
+		// Make changes only if AB issue is unassigned or assigned to a different user.
+		if( workItem.fields["System.AssignedTo"] == undefined || aadUser != workItem.fields["System.AssignedTo"].uniqueName )
+		{
+			patchDocument.push({
+				op: "add",
+				path: "/fields/System.AssignedTo",
+				value: aadUser,
+			});
+	
+			patchDocument.push({
+				op: "add",
+				path: "/fields/System.History",
+				value:
+					'Assigned to GitHub user <a href="https://github.com/' +
+					+ vm.assignee +
+					'" target="_new">' +
+					vm.assignee +
+					'</a>.',
+			});
+	
+			return updateWorkItem(patchDocument, workItem.id, vm.env);
+		}
+	});
 }
 
 // update existing working item
@@ -437,8 +487,9 @@ async function updateWorkItem(patchDocument, id, env) {
 		return workItemSaveResult;
 	} catch (error) {
 		console.log("Error: updateWorkItem failed");
+		console.log(error);
 		console.log(patchDocument);
-		core.setFailed(error);
+		core.setFailed(error.toString());
 	}
 }
 
@@ -480,6 +531,7 @@ function getValuesFromPayload(payload, env) {
 		repo_url: payload.repository.html_url != undefined ? payload.repository.html_url : "",
 		closed_at: payload.issue.closed_at != undefined ? payload.issue.closed_at : null,
 		owner: payload.repository.owner != undefined ? payload.repository.owner.login : "",
+		assignee: payload.assignee != undefined ? payload.assignee.login : "",
 		label: "",
 		comment_text: "",
 		comment_url: "",
@@ -494,8 +546,11 @@ function getValuesFromPayload(payload, env) {
 			areaPath: env.ado_area_path != undefined ? env.ado_area_path : "",
 			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
 			closedState: env.ado_close_state != undefined ? env.ado_close_state : "Closed",
-			newState: env.ado_new_state != undefined ? env.ado_new_State : "New",
-			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false
+			newState: env.ado_new_state != undefined ? env.ado_new_state : "New",
+			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
+			idMappingUrl: env.id_mapping_url != undefined ? env.id_mapping_url : "",
+			idMappingPat: env.id_mapping_pat != undefined ? env.id_mapping_pat : "",
+			idMappingQuery: env.id_mapping_query != undefined ? env.id_mapping_query : ""
 		}
 	};
 

@@ -19,3 +19,6 @@ jobs:
         ado_new_state: 'New'
         ado_close_state: 'Closed'
         ado_bypassrules: true
+        id_mapping_url: '${{ secrets.ID_MAPPING_URL }}'
+        id_mapping_pat: '${{ secrets.ID_MAPPING_PAT }}'
+        id_mapping_query: '$.aad.userPrincipalName'
