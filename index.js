@@ -196,6 +196,8 @@ async function create(vm, wit) {
 			console.log("Error: creatWorkItem failed");
 			console.log(`WIT may not be correct: ${wit}`);
 			core.setFailed();
+		} else {
+			console.log("Work item successfully created");
 		}
 	} catch (error) {
 		workItemSaveResult = -1;
@@ -206,12 +208,10 @@ async function create(vm, wit) {
 		core.setFailed(error);
 	}
 
-	console.log("Work item created");
-
-	if (workItemSaveResult != -1) {
-		// link the issue to the work item via AB# syntax with AzureBoards+GitHub App
-		issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItemSaveResult) : "";
-	}
+	// if (workItemSaveResult != -1) {
+	// 	// link the issue to the work item via AB# syntax with AzureBoards+GitHub App
+	// 	issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItemSaveResult) : "";
+	// }
 
 	return workItemSaveResult;
 }
