@@ -228,7 +228,9 @@ async function createForLabel(vm) {
 			default:
 				return null;
 		}
-		return await create(vm, wit);
+		var workItem = await create(vm, wit);
+		console.log("Work item created for label=" + vm.label);
+		return workItem;
 	}
 }
 
