@@ -109,13 +109,17 @@ async function main() {
 	}
 }
 
+function formatTitle(vm) {
+	return "[GitHub #" + vm.number + "] " + vm.title;
+}
+
 // create Work Item via https://docs.microsoft.com/en-us/rest/api/azure/devops/
 async function create(vm) {
 	let patchDocument = [
 		{
 			op: "add",
 			path: "/fields/System.Title",
-			value: "[GitHub #" + vm.number + "] " + vm.title,
+			value: formatTitle(vm),
 		},
 		{
 			op: "add",
@@ -203,12 +207,12 @@ async function update(vm, workItem) {
 
 	if (
 		workItem.fields["System.Title"] !=
-		`${vm.title} (GitHub Issue #${vm.number})`
+		`[GitHub #${vm.number}] ${vm.title}`
 	) {
 		patchDocument.push({
 			op: "add",
 			path: "/fields/System.Title",
-			value: vm.title + " (GitHub Issue #" + vm.number + ")",
+			value: formatTitle(vm),
 		});
 	}
 
@@ -378,7 +382,7 @@ async function find(vm) {
 
 	let wiql = {
 		query:
-			"SELECT [System.Id], [System.WorkItemType], [System.Description], [System.Title], [System.AssignedTo], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '(GitHub Issue #" +
+			"SELECT [System.Id], [System.WorkItemType], [System.Description], [System.Title], [System.AssignedTo], [System.State], [System.Tags] FROM workitems WHERE [System.TeamProject] = @project AND [System.Title] CONTAINS '[GitHub #" +
 			vm.number +
 			")' AND [System.Tags] CONTAINS 'GitHub Issue' AND [System.Tags] CONTAINS '" +
 			vm.repository +
