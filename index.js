@@ -208,10 +208,11 @@ async function create(vm, wit) {
 		core.setFailed(error);
 	}
 
-	// if (workItemSaveResult != -1) {
-	// 	// link the issue to the work item via AB# syntax with AzureBoards+GitHub App
-	// 	issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItemSaveResult) : "";
-	// }
+	if (workItemSaveResult != -1) {
+		console.log(workItemSaveResult);
+		// link the issue to the work item via AB# syntax with AzureBoards+GitHub App
+		issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItemSaveResult) : "";
+	}
 
 	return workItemSaveResult;
 }
