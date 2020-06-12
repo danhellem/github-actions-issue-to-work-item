@@ -46,22 +46,25 @@ async function main() {
 		}
 
 		// if a work item was not found, go create one
-		if (workItem === null && !vm.env.createOnTagging) {
-			console.log("No work item found, creating work item from issue");
-			workItem = await create(vm, vm.env.wit);
+		if (!vm.env.createOnTagging) {
+			if (workItem === null) {
+				console.log("No work item found, creating work item from issue");
+				workItem = await create(vm, vm.env.wit);
 
-			// if workItem == -1 then we have an error during create
-			if (workItem === -1) {
-				core.setFailed();
-				return;
+				// if workItem == -1 then we have an error during create
+				if (workItem === -1) {
+					core.setFailed();
+					return;
+				}
+
+			} else {
+				console.log(`Existing work item found: ${workItem.id}`);
 			}
-
-		} else {
-			console.log(`Existing work item found: ${workItem.id}`);
 		}
 
 		// create right patch document depending on the action tied to the issue
 		// update the work item
+		console.log("Performing action for event=" + vm.action);
 		switch (vm.action) {
 			case "opened":
 				if (!vm.env.createOnTagging && workItem === null) {
@@ -212,6 +215,7 @@ async function create(vm, wit) {
 
 // create a work item for the new label
 async function createForLabel(vm) {
+	console.log("Creating for label=" + vm.label);
 	if (vm.env.createOnTagging) {
 		var wit = "";
 		switch (vm.label) {
