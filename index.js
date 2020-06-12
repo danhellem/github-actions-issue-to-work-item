@@ -46,9 +46,9 @@ async function main() {
 		}
 
 		// if a work item was not found, go create one
-		if (workItem === null) {
+		if (workItem === null && !vm.env.createOnTagging) {
 			console.log("No work item found, creating work item from issue");
-			workItem = await create(vm);
+			workItem = await create(vm, vm.env.wit);
 
 			// if workItem == -1 then we have an error during create
 			if (workItem === -1) {
@@ -56,8 +56,6 @@ async function main() {
 				return;
 			}
 
-			// link the issue to the work item via AB# syntax with AzureBoards+GitHub App
-			issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItem) : "";
 		} else {
 			console.log(`Existing work item found: ${workItem.id}`);
 		}
@@ -66,7 +64,9 @@ async function main() {
 		// update the work item
 		switch (vm.action) {
 			case "opened":
-				workItem === null ? await create(vm) : "";
+				if (!vm.env.createOnTagging && workItem === null) {
+					workItem === null ? await create(vm, vm.env.wit) : "";
+				}
 				break;
 			case "edited":
 				workItem != null ? await update(vm, workItem) : "";
@@ -84,7 +84,11 @@ async function main() {
 				console.log("assigned action is not yet implemented");
 				break;
 			case "labeled":
-				workItem != null ? await label(vm, workItem) : "";
+				if (vm.env.createOnTagging && workItem === null) {
+					workItem = await createForLabel(vm);
+				} else {
+					workItem != null ? await label(vm, workItem) : "";
+				}
 				break;
 			case "unlabeled":
 				workItem != null ? await unlabel(vm, workItem) : "";
@@ -114,7 +118,7 @@ function formatTitle(vm) {
 }
 
 // create Work Item via https://docs.microsoft.com/en-us/rest/api/azure/devops/
-async function create(vm) {
+async function create(vm, wit) {
 	let patchDocument = [
 		{
 			op: "add",
@@ -187,8 +191,6 @@ async function create(vm) {
 			console.log(`WIT may not be correct: ${vm.env.wit}`);
 			core.setFailed();
 		}
-
-		return workItemSaveResult;
 	} catch (error) {
 		workItemSaveResult = -1;
 
@@ -198,7 +200,30 @@ async function create(vm) {
 		core.setFailed(error);
 	}
 
+	if (workItemSaveResult != -1) {
+		// link the issue to the work item via AB# syntax with AzureBoards+GitHub App
+		issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItem) : "";
+	}
+
 	return workItemSaveResult;
+}
+
+// create a work item for the new label
+async function createForLabel(vm) {
+	if (vm.env.createOnTagging) {
+		var wit = "";
+		switch (vm.label) {
+			case "bug":
+				wit = "Bug";
+				break;
+			case "feature request":
+				wit = "Scenario"
+				break;
+			default:
+				return null;
+		}
+		return await create(vm, wit);
+	}
 }
 
 // update existing working item
@@ -449,9 +474,9 @@ async function updateWorkItem(patchDocument, id, env) {
 // update the GH issue body to include the AB# so that we link the Work Item to the Issue
 // this should only get called when the issue is created
 async function updateIssueBody(vm, workItem) {
-	var n = vm.body.includes("AB#" + workItem.id.toString());
+	var hasLink = vm.body.includes("AB#" + workItem.id.toString());
 
-	if (!n) {
+	if (!hasLink) {
 		const octokit = new github.GitHub(vm.env.ghToken);
 		vm.body = vm.body + "\r\n\r\nAB#" + workItem.id.toString();
 
@@ -499,7 +524,8 @@ function getValuesFromPayload(payload, env) {
 			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
 			closedState: env.ado_close_state != undefined ? env.ado_close_state : "Closed",
 			newState: env.ado_new_state != undefined ? env.ado_new_State : "New",
-			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false
+			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
+			createOnTagging: env.create_on_tagging != undefined ? env.create_on_tagging : false
 		}
 	};
 
