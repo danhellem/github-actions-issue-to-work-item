@@ -194,7 +194,7 @@ async function create(vm, wit) {
 			workItemSaveResult = -1;
 
 			console.log("Error: creatWorkItem failed");
-			console.log(`WIT may not be correct: ${vm.env.wit}`);
+			console.log(`WIT may not be correct: ${wit}`);
 			core.setFailed();
 		}
 	} catch (error) {
@@ -205,6 +205,8 @@ async function create(vm, wit) {
 		console.log(error);
 		core.setFailed(error);
 	}
+
+	console.log("Work item created");
 
 	if (workItemSaveResult != -1) {
 		// link the issue to the work item via AB# syntax with AzureBoards+GitHub App
