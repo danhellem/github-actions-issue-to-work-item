@@ -133,6 +133,7 @@ async function create(vm, wit) {
 		{
 			op: "add",
 			path: "/fields/System.Description",
+			// TODO: Use repro steps, not description
 			value: vm.body,
 		},
 		{
@@ -183,7 +184,7 @@ async function create(vm, wit) {
 			(customHeaders = []),
 			(document = patchDocument),
 			(project = vm.env.project),
-			(type = vm.env.wit),
+			(type = wit),
 			(validateOnly = false),
 			(bypassRules = vm.env.bypassRules)
 		);
