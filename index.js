@@ -202,7 +202,7 @@ async function create(vm, wit) {
 
 	if (workItemSaveResult != -1) {
 		// link the issue to the work item via AB# syntax with AzureBoards+GitHub App
-		issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItem) : "";
+		issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItemSaveResult) : "";
 	}
 
 	return workItemSaveResult;
