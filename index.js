@@ -506,14 +506,20 @@ async function updateIssueBody(vm, workItem) {
 		const octokit = new github.GitHub(vm.env.ghToken);
 		vm.body = vm.body + "\r\n\r\nAB#" + workItem.id.toString();
 
-		var result = await octokit.issues.update({
-			owner: vm.owner,
-			repo: vm.repository,
-			issue_number: vm.number,
-			body: vm.body,
-		});
+		console.log("Attempting update");
+		try {
+			var result = await octokit.issues.update({
+				owner: vm.owner,
+				repo: vm.repository,
+				issue_number: vm.number,
+				body: vm.body,
+			});
 
-		return result;
+			return result;
+		} catch (error) {
+			console.log("Error: failed to update issue");
+			core.setFailed(error);
+		}
 	}
 
 	return null;
