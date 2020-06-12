@@ -86,12 +86,14 @@ async function main() {
 			case "labeled":
 				if (vm.env.createOnTagging && workItem === null) {
 					workItem = await createForLabel(vm);
-				} else {
+				} else if (vm.env.setLabelsAsTags) {
 					workItem != null ? await label(vm, workItem) : "";
 				}
 				break;
 			case "unlabeled":
-				workItem != null ? await unlabel(vm, workItem) : "";
+				if (vm.env.setLabelsAsTags) {
+					workItem != null ? await unlabel(vm, workItem) : "";
+				}
 				break;
 			case "deleted":
 				console.log("deleted action is not yet implemented");
@@ -133,7 +135,7 @@ async function create(vm, wit) {
 		{
 			op: "add",
 			path: "/fields/System.Tags",
-			value: "GitHub Issue; " + vm.repo_name,
+			value: vm.env.tags,
 		},
 		{
 			op: "add",
@@ -283,10 +285,24 @@ async function comment(vm, workItem) {
 async function close(vm, workItem) {
 	let patchDocument = [];
 
+	var closedState = vm.env.closedState;
+	// TODO: Move into main.yml settings
+	// switch (workItem.workItemType) {
+	// 	case "Bug":
+	// 		closedState = "Closed";
+	// 		break;
+	// 	case "Task":
+	// 	case "Deliverable":
+	// 	case "Scenario":
+	// 	case "Epic":
+	// 		closedState = "Completed";
+	// 		break;
+	// }
+
 	patchDocument.push({
 		op: "add",
 		path: "/fields/System.State",
-		value: vm.env.closedState,
+		value: closedState,
 	});
 
 	if (vm.comment_text != "") {
@@ -521,9 +537,11 @@ function getValuesFromPayload(payload, env) {
 			ghToken: env.github_token != undefined ? env.github_token : "",
 			project: env.ado_project != undefined ? env.ado_project : "",
 			areaPath: env.ado_area_path != undefined ? env.ado_area_path : "",
-			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
+			wit: env.ado_wit != undefined ? env.ado_wit : "Bug",
+			tags: env.ado_tags != undefined ? env.ado_tags : "",
+			setLabelsAsTags: env.ado_set_labels != undefined ? env.ado_set_labels : true,
 			closedState: env.ado_close_state != undefined ? env.ado_close_state : "Closed",
-			newState: env.ado_new_state != undefined ? env.ado_new_State : "New",
+			newState: env.ado_new_state != undefined ? env.ado_new_State : "Active",
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
 			createOnTagging: env.create_on_tagging != undefined ? env.create_on_tagging : false
 		}
