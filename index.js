@@ -500,14 +500,15 @@ async function updateWorkItem(patchDocument, id, env) {
 // update the GH issue body to include the AB# so that we link the Work Item to the Issue
 // this should only get called when the issue is created
 async function updateIssueBody(vm, workItem) {
-	var hasLink = vm.body.includes("AB#" + workItem.id.toString());
+	var hasLink = vm.body.includes("AB#" + workItem.id);
 
 	if (!hasLink) {
 		const octokit = new github.GitHub(vm.env.ghToken);
-		vm.body = vm.body + "\r\n\r\nAB#" + workItem.id.toString();
+		vm.body = vm.body + "\r\n\r\nAB#" + workItem.id;
 
 		console.log("Attempting update");
 		try {
+			console.log(vm);
 			var result = await octokit.issues.update({
 				owner: vm.owner,
 				repo: vm.repository,
