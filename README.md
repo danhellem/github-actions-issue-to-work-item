@@ -29,7 +29,7 @@ The id of the Work Item created or updated
 
    Optional Env Variables
 
-   - `ado_area_path`: To set a specific area path you want your work items created in
+   - `ado_area_path`: To set a specific area path you want your work items created in. If providing a full qualified path such as `area\sub_area`, then be sure to use the format of: `ado_area_path: "area\\area"` to avoid parsing failures.
    - `github_token`: Used to update the Issue with AB# syntax to link the work item to the issue. This will only work if the project is configured to use the [GitHub Azure Boards](https://github.com/marketplace/azure-boards) app.
    - `ado_bypassrules`: Used to bypass any rules on the form to ensure the work item gets created in Azure DevOps. However, some organizations getting bypassrules permissions for the token owner can go against policy. By default the bypassrules will be set to false. If you have rules on your form that prevent the work item to be created with just Title and Description, then you will need to set to true.
 
@@ -51,7 +51,7 @@ jobs:
           github_token: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"
           ado_organization: "ado_organization_name"
           ado_project: "your_project_name"
-          ado_area_path: "optional_area_path"
+          ado_area_path: "optional_area_path\\optional_area_path"
           ado_wit: "User Story"
           ado_new_state: "New"
           ado_close_state: "Closed"
