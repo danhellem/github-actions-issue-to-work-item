@@ -36,7 +36,7 @@ The id of the Work Item created or updated
 ```yaml
 name: Sync issue to Azure DevOps work item
 
-"on":
+on:
   issues:
     types:
       [opened, edited, deleted, closed, reopened, labeled, unlabeled, assigned]
