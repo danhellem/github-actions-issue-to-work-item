@@ -438,7 +438,8 @@ async function updateWorkItem(patchDocument, id, env) {
 	} catch (error) {
 		console.log("Error: updateWorkItem failed");
 		console.log(patchDocument);
-		core.setFailed(error);
+		console.log(error);
+		core.setFailed(error.toString());
 	}
 }
 
