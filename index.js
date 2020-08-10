@@ -31,6 +31,13 @@ async function main() {
 			vm = getValuesFromPayload(github.context.payload, env);
 		}
 
+		// if the sender in the azure-boards bot, then exit code
+		// nothing needs to be done
+		if (vm.sender_login === "azure-boards[bot]") {
+			console.log(`azure-boards[bot] sender, exiting action`);
+			return;
+		}
+
 		// todo: validate we have all the right inputs
 
 		// go check to see if work item already exists in azure devops or not
@@ -481,6 +488,7 @@ function getValuesFromPayload(payload, env) {
 		repo_url: payload.repository.html_url != undefined ? payload.repository.html_url : "",
 		closed_at: payload.issue.closed_at != undefined ? payload.issue.closed_at : null,
 		owner: payload.repository.owner != undefined ? payload.repository.owner.login : "",
+		sender_login: payload.sender.login != undefined ? payload.sender.login : '',
 		label: "",
 		comment_text: "",
 		comment_url: "",
