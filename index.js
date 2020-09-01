@@ -85,7 +85,7 @@ async function main() {
 				workItem != null ? await close(vm, workItem) : "";
 				break;
 			case "reopened":
-				workItem != null ? await reopen(vm, workItem) : "";
+				workItem != null ? await reopened(vm, workItem) : "";
 				break;
 			case "assigned":
 				console.log("assigned action is not yet implemented");
@@ -301,7 +301,7 @@ async function close(vm, workItem) {
 }
 
 // reopen existing work item
-async function reopen(vm, workItem) {
+async function reopened(vm, workItem) {
 	let patchDocument = [];
 
 	patchDocument.push({
@@ -503,7 +503,7 @@ function getValuesFromPayload(payload, env) {
 			areaPath: env.ado_area_path != undefined ? env.ado_area_path : "",
 			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
 			closedState: env.ado_close_state != undefined ? env.ado_close_state : "Closed",
-			newState: env.ado_new_state != undefined ? env.ado_new_State : "New",
+			newState: env.ado_new_state != undefined ? env.ado_new_state : "New",
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false
 		}
 	};
