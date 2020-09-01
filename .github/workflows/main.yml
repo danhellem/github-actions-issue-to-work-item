@@ -8,14 +8,15 @@ jobs:
   alert:
     runs-on: ubuntu-latest
     name: Testing workflow
-    steps:       
-    - uses: danhellem/github-actions-issue-to-work-item@master
-      env:     
-        ado_token: '${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}'
-        github_token: '${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}'
-        ado_organization: '${{ secrets.ADO_ORGANIZATION }}'
-        ado_project: '${{ secrets.ADO_PROJECT }}'
-        ado_wit: 'GitHub Issue' 
-        ado_new_state: 'New'
-        ado_close_state: 'Closed'
-        ado_bypassrules: true
+    steps:
+      - uses: danhellem/github-actions-issue-to-work-item@master
+        env:
+          ado_token: "${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}"
+          github_token: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"
+          ado_organization: "${{ secrets.ADO_ORGANIZATION }}"
+          ado_project: "${{ secrets.ADO_PROJECT }}"
+          ado_wit: "GitHub Issue"
+          ado_new_state: "New"
+          ado_active_state: "Active"
+          ado_close_state: "Closed"
+          ado_bypassrules: true
