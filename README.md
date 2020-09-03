@@ -54,6 +54,7 @@ jobs:
           ado_area_path: "optional_area_path\\optional_area_path"
           ado_wit: "User Story"
           ado_new_state: "New"
+          ado_active_state: "Active"
           ado_close_state: "Closed"
           ado_bypassrules: true
 ```
