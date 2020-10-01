@@ -18,7 +18,7 @@
 	},
 	"homepage": "https://github.com/danhellem/github-actions-issue-to-work-item#readme",
 	"dependencies": {
-		"@actions/core": "^1.2.3",
+		"@actions/core": "^1.2.6",
 		"@actions/github": "^2.1.1",
 		"azure-devops-node-api": "^10.1.0"
 	}
