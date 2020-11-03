@@ -168,6 +168,15 @@ async function create(vm) {
 		});
 	}
 
+	// if iteration path is not empty, set it
+	if (vm.env.iterationPath != "") {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.IterationPath",
+			value: vm.env.iterationPath,
+		});
+	}
+
 	let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.adoToken);
 	let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
 	let client = await connection.getWorkItemTrackingApi();
@@ -243,11 +252,7 @@ async function comment(vm, workItem) {
 		patchDocument.push({
 			op: "add",
 			path: "/fields/System.History",
-			value:
-				'<a href="' +
-				vm.comment_url +
-				'" target="_new">GitHub Comment Added</a></br></br>' +
-				vm.comment_text,
+			value: '<a href="' + vm.comment_url + '" target="_new">GitHub Comment Added</a></br></br>' + vm.comment_text,
 		});
 	}
 
@@ -502,6 +507,7 @@ function getValuesFromPayload(payload, env) {
 			ghToken: env.github_token != undefined ? env.github_token : "",
 			project: env.ado_project != undefined ? env.ado_project : "",
 			areaPath: env.ado_area_path != undefined ? env.ado_area_path : "",
+			iterationPath: env.ado_iteration_path != undefined ? env.ado_iteration_path : "",
 			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
 			closedState: env.ado_close_state != undefined ? env.ado_close_state : "Closed",
 			newState: env.ado_new_state != undefined ? env.ado_new_state : "New",
