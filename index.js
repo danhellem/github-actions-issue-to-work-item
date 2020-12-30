@@ -132,23 +132,14 @@ async function create(vm) {
 		},
 		{
 			op: "add",
-			path: "/fields/System.Tags",
-			value: "GitHub Issue; " + vm.repo_name,
+			path: "/fields/Microsoft.VSTS.TCM.ReproSteps",
+			value: vm.body,
 		},
 		{
 			op: "add",
-			path: "/fields/System.History",
-			value:
-				'GitHub <a href="' +
-				vm.url +
-				'" target="_new">issue #' +
-				vm.number +
-				'</a> created in <a href="' +
-				vm.repo_url +
-				'" target="_new">' +
-				vm.repo_fullname +
-				"</a>",
-		},
+			path: "/fields/System.Tags",
+			value: "GitHub Issue; " + vm.repo_name,
+		},		
 		{
 			op: "add",
 			path: "/relations/-",
@@ -158,6 +149,40 @@ async function create(vm) {
 			},
 		},
 	];
+
+	
+	if (vm.comment_text != "") {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.History",
+			value:
+			'GitHub <a href="' +
+			vm.url +
+			'" target="_new">issue #' +
+			vm.number +
+			'</a> created in <a href="' +
+			vm.repo_url +
+			'" target="_new">' +
+			vm.repo_fullname +
+			"</a> by " + vm.user,
+		});
+	}
+	else {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.History",
+			value:
+			'GitHub <a href="' +
+			vm.url +
+			'" target="_new">issue #' +
+			vm.number +
+			'</a> created in <a href="' +
+			vm.repo_url +
+			'" target="_new">' +
+			vm.repo_fullname +
+			"</a> by " + vm.user + "</br></br>" + vm.comment_text,
+		});
+	}
 
 	// if area path is not empty, set it
 	if (vm.env.areaPath != "") {
@@ -229,13 +254,33 @@ async function update(vm, workItem) {
 		});
 	}
 
-	if (workItem.fields["System.Description"] != vm.body) {
+	if (workItem.fields["System.Description"] != vm.body || workItem.fields["Microsoft.VSTS.TCM.ReproSteps"] != vm.body) {
 		patchDocument.push({
 			op: "add",
 			path: "/fields/System.Description",
 			value: vm.body,
+		}, {
+			op: "add",
+			path: "/fields/Microsoft.VSTS.TCM.ReproSteps",
+			value: vm.body,
 		});
 	}
+
+	if (vm.comment_text != "") {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.History",
+			value: 'GitHub issue updated by ' + vm.user + '</br></br>'
+		});
+	}
+	else {
+		patchDocument.push({
+			op: "add",
+			path: "/fields/System.History",
+			value: 'GitHub issue updated by ' + vm.user + ' and <a href="' + vm.comment_url + '" target="_new">comment added</a></br></br>' + vm.comment_text,
+		});
+	}
+
 
 	if (patchDocument.length > 0) {
 		return await updateWorkItem(patchDocument, workItem.id, vm.env);
@@ -252,7 +297,7 @@ async function comment(vm, workItem) {
 		patchDocument.push({
 			op: "add",
 			path: "/fields/System.History",
-			value: '<a href="' + vm.comment_url + '" target="_new">GitHub Comment Added</a></br></br>' + vm.comment_text,
+			value: '<a href="' + vm.comment_url + '" target="_new">GitHub issue comment added</a> by ' + vm.user + '</br></br>' + vm.comment_text,
 		});
 	}
 
@@ -295,7 +340,7 @@ async function close(vm, workItem) {
 				'" target="_new">issue #' +
 				vm.number +
 				"</a> was closed on " +
-				vm.closed_at,
+				vm.closed_at + ' by ' + vm.user
 		});
 	}
 
@@ -319,7 +364,7 @@ async function reopened(vm, workItem) {
 	patchDocument.push({
 		op: "add",
 		path: "/fields/System.History",
-		value: "Issue reopened",
+		value: "GitHub issue reopened by " + vm.user,
 	});
 
 	if (patchDocument.length > 0) {
@@ -339,7 +384,7 @@ async function label(vm, workItem) {
 			path: "/fields/System.Tags",
 			value: workItem.fields["System.Tags"] + ", " + vm.label,
 		});
-	}
+	}	
 
 	if (patchDocument.length > 0) {
 		return await updateWorkItem(patchDocument, workItem.id, vm.env);
