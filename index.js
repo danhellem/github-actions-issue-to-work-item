@@ -148,10 +148,7 @@ async function create(vm) {
         url: vm.url,
       },
     },
-  ];
-
-  if (vm.comment_text != "") {
-    patchDocument.push({
+    {
       op: "add",
       path: "/fields/System.History",
       value:
@@ -165,26 +162,8 @@ async function create(vm) {
         vm.repo_fullname +
         "</a> by " +
         vm.user,
-    });
-  } else {
-    patchDocument.push({
-      op: "add",
-      path: "/fields/System.History",
-      value:
-        'GitHub <a href="' +
-        vm.url +
-        '" target="_new">issue #' +
-        vm.number +
-        '</a> created in <a href="' +
-        vm.repo_url +
-        '" target="_new">' +
-        vm.repo_fullname +
-        "</a> by " +
-        vm.user +
-        "</br></br>" +
-        vm.comment_text,
-    });
-  }
+    },
+  ];
 
   // if area path is not empty, set it
   if (vm.env.areaPath != "") {
@@ -274,27 +253,13 @@ async function update(vm, workItem) {
     );
   }
 
-  if (vm.comment_text.length != "") {
-    patchDocument.push({
-      op: "add",
-      path: "/fields/System.History",
-      value:
-        "GitHub issue updated by " +
-        vm.user +
-        ' and <a href="' +
-        vm.comment_url +
-        '" target="_new">comment added</a></br></br>' +
-        vm.comment_text,
-    });
-  } else {
+  if (patchDocument.length > 0) {
     patchDocument.push({
       op: "add",
       path: "/fields/System.History",
       value: "GitHub issue updated by " + vm.user,
     });
-  }
 
-  if (patchDocument.length > 0) {
     return await updateWorkItem(patchDocument, workItem.id, vm.env);
   } else {
     return null;
@@ -337,37 +302,19 @@ async function close(vm, workItem) {
   });
 
   if (vm.closed_at != "") {
-    if (vm.comment_text != "") {
-      patchDocument.push({
-        op: "add",
-        path: "/fields/System.History",
-        value:
-          'GitHub <a href="' +
-          vm.url +
-          '" target="_new">issue #' +
-          vm.number +
-          "</a> was closed on " +
-          vm.closed_at +
-          " by " +
-          vm.user +
-          "and comment added</a></br></br>" +
-          vm.comment_text,
-      });
-    } else {
-      patchDocument.push({
-        op: "add",
-        path: "/fields/System.History",
-        value:
-          'GitHub <a href="' +
-          vm.url +
-          '" target="_new">issue #' +
-          vm.number +
-          "</a> was closed on " +
-          vm.closed_at +
-          " by " +
-          vm.user,
-      });
-    }
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.History",
+      value:
+        'GitHub <a href="' +
+        vm.url +
+        '" target="_new">issue #' +
+        vm.number +
+        "</a> was closed on " +
+        vm.closed_at +
+        " by " +
+        vm.user,
+    });
   }
 
   if (patchDocument.length > 0) {
@@ -387,25 +334,11 @@ async function reopened(vm, workItem) {
     value: vm.env.activeState,
   });
 
-  if (vm.comment_text != "") {
-    patchDocument.push({
-      op: "add",
-      path: "/fields/System.History",
-      value:
-        '<a href="' +
-        vm.comment_url +
-        '" target="_new">GitHub issue reopened by ' +
-        vm.user +
-        " and comment added</a></br></br>" +
-        vm.comment_text,
-    });
-  } else {
-    patchDocument.push({
-      op: "add",
-      path: "/fields/System.History",
-      value: "GitHub issue reopened by " + vm.user,
-    });
-  }
+  patchDocument.push({
+    op: "add",
+    path: "/fields/System.History",
+    value: "GitHub issue reopened by " + vm.user,
+  });
 
   if (patchDocument.length > 0) {
     return await updateWorkItem(patchDocument, workItem.id, vm.env);
