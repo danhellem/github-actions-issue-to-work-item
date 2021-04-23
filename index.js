@@ -183,6 +183,16 @@ async function create(vm) {
     });
   }
 
+  // if the bypassrules are on, then use the issue.sender.user.name value for the person 
+  // who created the issue
+  if (vm.env.bypassRules) {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.CreatedBy",
+      value: vm.user,
+    });
+  }
+
   let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.adoToken);
   let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
   let client = await connection.getWorkItemTrackingApi();
