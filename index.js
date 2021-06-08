@@ -163,6 +163,11 @@ async function create(vm) {
         "</a> by " +
         vm.user,
     },
+    {
+      op: "add",
+      path: "/fields/Microsoft.VSTS.Common.StackRank",
+      value: 1
+    }
   ];
 
   // if area path is not empty, set it
