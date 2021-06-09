@@ -69,13 +69,13 @@ async function main() {
         return;
       }
 
-      if (vm.logLevel >= 300) {
+      if (vm.env.logLevel >= 300) {
         console.log("Print full work item object:");
         console.log(workItem);
       }
 
       // link the issue to the work item via AB# syntax with AzureBoards+GitHub App
-      if (vm.logLevel >= 200)
+      if (vm.env.logLevel >= 200)
         console.log("Updating issue body text with AB# syntax");
 
       issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItem) : "";
@@ -83,7 +83,7 @@ async function main() {
       console.log(`Existing work item found: ${workItem.id}`);
     }
 
-    if (vm.logLevel >= 200)
+    if (vm.env.logLevel >= 200)
       console.log(`Starting switch statement for action '${action}'`);
 
     // create right patch document depending on the action tied to the issue
@@ -137,7 +137,7 @@ async function main() {
 
 // create Work Item via https://docs.microsoft.com/en-us/rest/api/azure/devops/
 async function create(vm) {
-  if (vm.logLevel >= 200) console.log(`Starting 'create' method...`);
+  if (vm.env.logLevel >= 200) console.log(`Starting 'create' method...`);
 
   let patchDocument = [
     {
@@ -219,7 +219,7 @@ async function create(vm) {
   }
 
   // verbose logging
-  if (vm.logLevel >= 300) {
+  if (vm.env.logLevel >= 300) {
     console.log("Print full patch object:");
     console.log(patchDocument);
   }
@@ -262,7 +262,7 @@ async function create(vm) {
 
 // update existing working item
 async function update(vm, workItem) {
-  if (vm.logLevel >= 200) console.log(`Starting 'update' method...`);
+  if (vm.env.logLevel >= 200) console.log(`Starting 'update' method...`);
 
   let patchDocument = [];
 
@@ -296,7 +296,7 @@ async function update(vm, workItem) {
   }
 
   // verbose logging
-  if (vm.logLevel >= 300) {
+  if (vm.env.logLevel >= 300) {
     console.log("Print full patch object:");
     console.log(patchDocument);
   }
@@ -316,7 +316,7 @@ async function update(vm, workItem) {
 
 // add comment to an existing work item
 async function comment(vm, workItem) {
-  if (vm.logLevel >= 200) console.log(`Starting 'comment' method...`);
+  if (vm.env.logLevel >= 200) console.log(`Starting 'comment' method...`);
 
   let patchDocument = [];
 
@@ -335,7 +335,7 @@ async function comment(vm, workItem) {
   }
 
   // verbose logging
-  if (vm.logLevel >= 300) {
+  if (vm.env.logLevel >= 300) {
     console.log("Print full patch object:");
     console.log(patchDocument);
   }
@@ -349,7 +349,7 @@ async function comment(vm, workItem) {
 
 // close work item
 async function close(vm, workItem) {
-  if (vm.logLevel >= 200) console.log(`Starting 'close' method...`);
+  if (vm.env.logLevel >= 200) console.log(`Starting 'close' method...`);
 
   let patchDocument = [];
 
@@ -376,7 +376,7 @@ async function close(vm, workItem) {
   }
 
   // verbose logging
-  if (vm.logLevel >= 300) {
+  if (vm.env.logLevel >= 300) {
     console.log("Print full patch object:");
     console.log(patchDocument);
   }
@@ -390,7 +390,7 @@ async function close(vm, workItem) {
 
 // reopen existing work item
 async function reopened(vm, workItem) {
-  if (vm.logLevel >= 200) console.log(`Starting 'reopened' method...`);
+  if (vm.env.logLevel >= 200) console.log(`Starting 'reopened' method...`);
 
   let patchDocument = [];
 
@@ -407,7 +407,7 @@ async function reopened(vm, workItem) {
   });
 
   // verbose logging
-  if (vm.logLevel >= 300) {
+  if (vm.env.logLevel >= 300) {
     console.log("Print full patch object:");
     console.log(patchDocument);
   }
@@ -421,7 +421,7 @@ async function reopened(vm, workItem) {
 
 // add new label to existing work item
 async function label(vm, workItem) {
-  if (vm.logLevel >= 200) console.log(`Starting 'label' method...`);
+  if (vm.env.logLevel >= 200) console.log(`Starting 'label' method...`);
 
   let patchDocument = [];
 
@@ -434,7 +434,7 @@ async function label(vm, workItem) {
   }
 
   // verbose logging
-  if (vm.logLevel >= 300) {
+  if (vm.env.logLevel >= 300) {
     console.log("Print full patch object:");
     console.log(patchDocument);
   }
@@ -447,7 +447,7 @@ async function label(vm, workItem) {
 }
 
 async function unlabel(vm, workItem) {
-  if (vm.logLevel >= 200) console.log(`Starting 'unlabel' method...`);
+  if (vm.env.logLevel >= 200) console.log(`Starting 'unlabel' method...`);
 
   let patchDocument = [];
 
@@ -463,7 +463,7 @@ async function unlabel(vm, workItem) {
   }
 
   // verbose logging
-  if (vm.logLevel >= 300) {
+  if (vm.env.logLevel >= 300) {
     console.log("Print full patch object:");
     console.log(patchDocument);
   }
@@ -477,7 +477,7 @@ async function unlabel(vm, workItem) {
 
 // find work item to see if it already exists
 async function find(vm) {
-  if (vm.logLevel >= 200) console.log(`Starting 'find' method...`);
+  if (vm.env.logLevel >= 200) console.log(`Starting 'find' method...`);
 
   let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.adoToken);
   let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
@@ -507,7 +507,7 @@ async function find(vm) {
   };
 
   // verbose logging
-  if (vm.logLevel >= 300) {
+  if (vm.env.logLevel >= 300) {
     console.log("Print full WIQL statement:");
     console.log(wiql);
   }
@@ -516,7 +516,7 @@ async function find(vm) {
     queryResult = await client.queryByWiql(wiql, teamContext);
 
     // verbose logging
-    if (vm.logLevel >= 300) {
+    if (vm.env.logLevel >= 300) {
       console.log("Print query results:");
       console.log(queryResult);
     }
@@ -537,7 +537,7 @@ async function find(vm) {
   workItem = queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
 
   // verbose logging
-  if (vm.logLevel >= 300) {
+  if (vm.env.logLevel >= 300) {
     console.log("Print work item result:");
     console.log(workItem);
   }
@@ -558,7 +558,7 @@ async function find(vm) {
 
 // standard updateWorkItem call used for all updates
 async function updateWorkItem(patchDocument, id, env) {
-  if (vm.logLevel >= 200) console.log(`Starting 'updateWorkItem' method...`);
+  if (env.logLevel >= 200) console.log(`Starting 'updateWorkItem' method...`);
 
   let authHandler = azdev.getPersonalAccessTokenHandler(env.adoToken);
   let connection = new azdev.WebApi(env.orgUrl, authHandler);
@@ -576,7 +576,7 @@ async function updateWorkItem(patchDocument, id, env) {
     );
 
     // verbose logging
-    if (vm.logLevel >= 300) {
+    if (env.logLevel >= 300) {
       console.log("Print work item save result:");
       console.log(workItemSaveResult);
     }
@@ -593,7 +593,7 @@ async function updateWorkItem(patchDocument, id, env) {
 // update the GH issue body to include the AB# so that we link the Work Item to the Issue
 // this should only get called when the issue is created
 async function updateIssueBody(vm, workItem) {
-  if (vm.logLevel >= 200) console.log(`Starting 'updateIssueBody' method...`);
+  if (vm.env.logLevel >= 200) console.log(`Starting 'updateIssueBody' method...`);
 
   var n = vm.body.includes("AB#" + workItem.id.toString());  
 
@@ -609,7 +609,7 @@ async function updateIssueBody(vm, workItem) {
     });
 
     // verbose logging
-    if (vm.logLevel >= 300) {
+    if (vm.env.logLevel >= 300) {
       console.log("Print github issue update result:");
       console.log(result);
     }
@@ -622,8 +622,6 @@ async function updateIssueBody(vm, workItem) {
 
 // get object values from the payload that will be used for logic, updates, finds, and creates
 function getValuesFromPayload(payload, env) {
-  if (vm.logLevel >= 200) console.log(`Starting 'getValuesFromPayload' method...`);
-  
   // prettier-ignore
   var vm = {
 		action: payload.action != undefined ? payload.action : "",
@@ -679,9 +677,9 @@ function getValuesFromPayload(payload, env) {
     vm.organization = split[0] != undefined ? split[0] : "";
     vm.repository = split[1] != undefined ? split[1] : "";
   }
-
+  
   // verbose logging
-  if (vm.logLevel >= 300) {
+  if (vm.env.logLevel >= 300) {
     console.log("Print vm:");
     console.log(vm);
   }
