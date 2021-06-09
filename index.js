@@ -84,7 +84,7 @@ async function main() {
     }
 
     if (vm.env.logLevel >= 200)
-      console.log(`Starting switch statement for action '${action}'`);
+      console.log(`Starting switch statement for action '${vm.action}'`);
 
     // create right patch document depending on the action tied to the issue
     // update the work item
