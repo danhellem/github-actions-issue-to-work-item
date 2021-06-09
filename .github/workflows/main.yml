@@ -20,4 +20,4 @@ jobs:
         ado_close_state: 'Closed'
         ado_active_state: 'Active'  
         ado_bypassrules: true
-        log_level: 200
+        log_level: 300
