@@ -8,6 +8,8 @@ const testPayload = []; // used for debugging, cut and paste payload
 main();
 
 async function main() {
+  if (debug) console.log('WARNING! You are in debug mode');
+  
   try {
     const context = github.context;
     const env = process.env;
@@ -24,13 +26,14 @@ async function main() {
       env.ado_close_state = "Closed";
       env.ado_active_state = "Active";
       env.ado_new_state = "New";
+      env.log_level = 100;
 
       console.log("Set values from test payload");
       vm = getValuesFromPayload(testPayload, env);
     } else {
       console.log("Set values from payload & env");
       vm = getValuesFromPayload(github.context.payload, env);
-    }
+    }    
 
     // if the sender in the azure-boards bot, then exit code
     // nothing needs to be done
@@ -49,6 +52,7 @@ async function main() {
 
     // if workItem == -1 then we have an error during find
     if (workItem === -1) {
+      console.log("Work item value is -1, exiting action");
       core.setFailed();
       return;
     }
@@ -60,15 +64,27 @@ async function main() {
 
       // if workItem == -1 then we have an error during create
       if (workItem === -1) {
+        console.log("Work item value is -1, exiting action");
         core.setFailed();
         return;
       }
 
+      if (vm.logLevel >= 300) {
+        console.log("Print full work item object:");
+        console.log(workItem);
+      }
+
       // link the issue to the work item via AB# syntax with AzureBoards+GitHub App
+      if (vm.logLevel >= 200)
+        console.log("Updating issue body text with AB# syntax");
+
       issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItem) : "";
     } else {
       console.log(`Existing work item found: ${workItem.id}`);
     }
+
+    if (vm.logLevel >= 200)
+      console.log(`Starting switch statement for action '${action}'`);
 
     // create right patch document depending on the action tied to the issue
     // update the work item
@@ -104,7 +120,7 @@ async function main() {
         console.log("transferred action is not yet implemented");
         break;
       default:
-        console.log(`Unhandled action: ${vm.action}`);
+        console.log(`unhandled action: ${vm.action}`);
     }
 
     // set output message
@@ -113,12 +129,16 @@ async function main() {
       core.setOutput(`id`, `${workItem.id}`);
     }
   } catch (error) {
+    console.log("Error in catch statement:");
+    console.log(error);
     core.setFailed(error);
   }
 }
 
 // create Work Item via https://docs.microsoft.com/en-us/rest/api/azure/devops/
 async function create(vm) {
+  if (vm.logLevel >= 200) console.log(`Starting 'create' method...`);
+
   let patchDocument = [
     {
       op: "add",
@@ -166,8 +186,8 @@ async function create(vm) {
     {
       op: "add",
       path: "/fields/Microsoft.VSTS.Common.StackRank",
-      value: 1
-    }
+      value: 1,
+    },
   ];
 
   // if area path is not empty, set it
@@ -188,7 +208,7 @@ async function create(vm) {
     });
   }
 
-  // if the bypassrules are on, then use the issue.sender.user.name value for the person 
+  // if the bypassrules are on, then use the issue.sender.user.name value for the person
   // who created the issue
   if (vm.env.bypassRules) {
     patchDocument.push({
@@ -196,6 +216,12 @@ async function create(vm) {
       path: "/fields/System.CreatedBy",
       value: vm.user,
     });
+  }
+
+  // verbose logging
+  if (vm.logLevel >= 300) {
+    console.log("Print full patch object:");
+    console.log(patchDocument);
   }
 
   let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.adoToken);
@@ -227,7 +253,6 @@ async function create(vm) {
     workItemSaveResult = -1;
 
     console.log("Error: creatWorkItem failed");
-    console.log(patchDocument);
     console.log(error);
     core.setFailed(error);
   }
@@ -237,6 +262,8 @@ async function create(vm) {
 
 // update existing working item
 async function update(vm, workItem) {
+  if (vm.logLevel >= 200) console.log(`Starting 'update' method...`);
+
   let patchDocument = [];
 
   if (
@@ -268,6 +295,12 @@ async function update(vm, workItem) {
     );
   }
 
+  // verbose logging
+  if (vm.logLevel >= 300) {
+    console.log("Print full patch object:");
+    console.log(patchDocument);
+  }
+
   if (patchDocument.length > 0) {
     patchDocument.push({
       op: "add",
@@ -283,6 +316,8 @@ async function update(vm, workItem) {
 
 // add comment to an existing work item
 async function comment(vm, workItem) {
+  if (vm.logLevel >= 200) console.log(`Starting 'comment' method...`);
+
   let patchDocument = [];
 
   if (vm.comment_text != "") {
@@ -299,6 +334,12 @@ async function comment(vm, workItem) {
     });
   }
 
+  // verbose logging
+  if (vm.logLevel >= 300) {
+    console.log("Print full patch object:");
+    console.log(patchDocument);
+  }
+
   if (patchDocument.length > 0) {
     return await updateWorkItem(patchDocument, workItem.id, vm.env);
   } else {
@@ -308,6 +349,8 @@ async function comment(vm, workItem) {
 
 // close work item
 async function close(vm, workItem) {
+  if (vm.logLevel >= 200) console.log(`Starting 'close' method...`);
+
   let patchDocument = [];
 
   patchDocument.push({
@@ -332,6 +375,12 @@ async function close(vm, workItem) {
     });
   }
 
+  // verbose logging
+  if (vm.logLevel >= 300) {
+    console.log("Print full patch object:");
+    console.log(patchDocument);
+  }
+
   if (patchDocument.length > 0) {
     return await updateWorkItem(patchDocument, workItem.id, vm.env);
   } else {
@@ -341,6 +390,8 @@ async function close(vm, workItem) {
 
 // reopen existing work item
 async function reopened(vm, workItem) {
+  if (vm.logLevel >= 200) console.log(`Starting 'reopened' method...`);
+
   let patchDocument = [];
 
   patchDocument.push({
@@ -355,6 +406,12 @@ async function reopened(vm, workItem) {
     value: "GitHub issue reopened by " + vm.user,
   });
 
+  // verbose logging
+  if (vm.logLevel >= 300) {
+    console.log("Print full patch object:");
+    console.log(patchDocument);
+  }
+
   if (patchDocument.length > 0) {
     return await updateWorkItem(patchDocument, workItem.id, vm.env);
   } else {
@@ -364,6 +421,8 @@ async function reopened(vm, workItem) {
 
 // add new label to existing work item
 async function label(vm, workItem) {
+  if (vm.logLevel >= 200) console.log(`Starting 'label' method...`);
+
   let patchDocument = [];
 
   if (!workItem.fields["System.Tags"].includes(vm.label)) {
@@ -374,6 +433,12 @@ async function label(vm, workItem) {
     });
   }
 
+  // verbose logging
+  if (vm.logLevel >= 300) {
+    console.log("Print full patch object:");
+    console.log(patchDocument);
+  }
+
   if (patchDocument.length > 0) {
     return await updateWorkItem(patchDocument, workItem.id, vm.env);
   } else {
@@ -382,6 +447,8 @@ async function label(vm, workItem) {
 }
 
 async function unlabel(vm, workItem) {
+  if (vm.logLevel >= 200) console.log(`Starting 'unlabel' method...`);
+
   let patchDocument = [];
 
   if (workItem.fields["System.Tags"].includes(vm.label)) {
@@ -395,6 +462,12 @@ async function unlabel(vm, workItem) {
     });
   }
 
+  // verbose logging
+  if (vm.logLevel >= 300) {
+    console.log("Print full patch object:");
+    console.log(patchDocument);
+  }
+
   if (patchDocument.length > 0) {
     return await updateWorkItem(patchDocument, workItem.id, vm.env);
   } else {
@@ -404,6 +477,8 @@ async function unlabel(vm, workItem) {
 
 // find work item to see if it already exists
 async function find(vm) {
+  if (vm.logLevel >= 200) console.log(`Starting 'find' method...`);
+
   let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.adoToken);
   let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
   let client = null;
@@ -431,8 +506,20 @@ async function find(vm) {
       "'",
   };
 
+  // verbose logging
+  if (vm.logLevel >= 300) {
+    console.log("Print full WIQL statement:");
+    console.log(wiql);
+  }
+
   try {
     queryResult = await client.queryByWiql(wiql, teamContext);
+
+    // verbose logging
+    if (vm.logLevel >= 300) {
+      console.log("Print query results:");
+      console.log(queryResult);
+    }
 
     // if query results = null then i think we have issue with the project name
     if (queryResult == null) {
@@ -448,6 +535,12 @@ async function find(vm) {
   }
 
   workItem = queryResult.workItems.length > 0 ? queryResult.workItems[0] : null;
+
+  // verbose logging
+  if (vm.logLevel >= 300) {
+    console.log("Print work item result:");
+    console.log(workItem);
+  }
 
   if (workItem != null) {
     try {
@@ -465,6 +558,8 @@ async function find(vm) {
 
 // standard updateWorkItem call used for all updates
 async function updateWorkItem(patchDocument, id, env) {
+  if (vm.logLevel >= 200) console.log(`Starting 'updateWorkItem' method...`);
+
   let authHandler = azdev.getPersonalAccessTokenHandler(env.adoToken);
   let connection = new azdev.WebApi(env.orgUrl, authHandler);
   let client = await connection.getWorkItemTrackingApi();
@@ -480,6 +575,12 @@ async function updateWorkItem(patchDocument, id, env) {
       (bypassRules = env.bypassRules)
     );
 
+    // verbose logging
+    if (vm.logLevel >= 300) {
+      console.log("Print work item save result:");
+      console.log(workItemSaveResult);
+    }
+
     return workItemSaveResult;
   } catch (error) {
     console.log("Error: updateWorkItem failed");
@@ -492,7 +593,9 @@ async function updateWorkItem(patchDocument, id, env) {
 // update the GH issue body to include the AB# so that we link the Work Item to the Issue
 // this should only get called when the issue is created
 async function updateIssueBody(vm, workItem) {
-  var n = vm.body.includes("AB#" + workItem.id.toString());
+  if (vm.logLevel >= 200) console.log(`Starting 'updateIssueBody' method...`);
+
+  var n = vm.body.includes("AB#" + workItem.id.toString());  
 
   if (!n) {
     const octokit = new github.GitHub(vm.env.ghToken);
@@ -505,6 +608,12 @@ async function updateIssueBody(vm, workItem) {
       body: vm.body,
     });
 
+    // verbose logging
+    if (vm.logLevel >= 300) {
+      console.log("Print github issue update result:");
+      console.log(result);
+    }
+
     return result;
   }
 
@@ -513,6 +622,8 @@ async function updateIssueBody(vm, workItem) {
 
 // get object values from the payload that will be used for logic, updates, finds, and creates
 function getValuesFromPayload(payload, env) {
+  if (vm.logLevel >= 200) console.log(`Starting 'getValuesFromPayload' method...`);
+  
   // prettier-ignore
   var vm = {
 		action: payload.action != undefined ? payload.action : "",
@@ -545,7 +656,8 @@ function getValuesFromPayload(payload, env) {
 			closedState: env.ado_close_state != undefined ? env.ado_close_state : "Closed",
 			newState: env.ado_new_state != undefined ? env.ado_new_state : "New",
 			activeState: env.ado_active_state != undefined ? env.ado_active_state : "Active",
-			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false
+			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
+      logLevel: env.log_level != undefined ? env.log_level : 100
 		}
 	};
 
@@ -566,6 +678,12 @@ function getValuesFromPayload(payload, env) {
     var split = payload.repository.full_name.split("/");
     vm.organization = split[0] != undefined ? split[0] : "";
     vm.repository = split[1] != undefined ? split[1] : "";
+  }
+
+  // verbose logging
+  if (vm.logLevel >= 300) {
+    console.log("Print vm:");
+    console.log(vm);
   }
 
   return vm;

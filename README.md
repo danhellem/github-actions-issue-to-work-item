@@ -33,6 +33,9 @@ The id of the Work Item created or updated
    - `ado_iteration_path`: To set a specific iteration path you want your work items created in. If providing a full qualified path such as `iteration\sub iteration`, then be sure to use the format of: `ado_iteration_path: "iteration\\iteration"` to avoid parsing failures.
    - `github_token`: Used to update the Issue with AB# syntax to link the work item to the issue. This will only work if the project is configured to use the [GitHub Azure Boards](https://github.com/marketplace/azure-boards) app.
    - `ado_bypassrules`: Used to bypass any rules on the form to ensure the work item gets created in Azure DevOps. However, some organizations getting bypassrules permissions for the token owner can go against policy. By default the bypassrules will be set to false. If you have rules on your form that prevent the work item to be created with just Title and Description, then you will need to set to true.
+   - `log_level`: Used to set the logging verbosity to help with debugging in a production environment. 100 is the default. 
+
+     **Warning:** Setting `log_level` to 300 will log out environment (secrets) info, work items, and issue data. Only use 300 when debugging issues.
 
 ```yaml
 name: Sync issue to Azure DevOps work item
@@ -59,4 +62,5 @@ jobs:
           ado_active_state: "Active"
           ado_close_state: "Closed"
           ado_bypassrules: true
+          log_level: 100
 ```
