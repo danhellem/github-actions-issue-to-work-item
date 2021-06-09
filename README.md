@@ -35,7 +35,7 @@ The id of the Work Item created or updated
    - `ado_bypassrules`: Used to bypass any rules on the form to ensure the work item gets created in Azure DevOps. However, some organizations getting bypassrules permissions for the token owner can go against policy. By default the bypassrules will be set to false. If you have rules on your form that prevent the work item to be created with just Title and Description, then you will need to set to true.
    - `log_level`: Used to set the logging verbosity to help with debugging in a production environment. 100 is the default. 
 
-     **Warning:** Setting `log_level` to 300 will log out environment (secrets) info, work items, and issue data. Only use 300 when debugging issues.
+     **Warning:** Setting `log_level` to 300 will log out environment info, work items, and issue data. Only use 300 when debugging issues.
 
 ```yaml
 name: Sync issue to Azure DevOps work item
