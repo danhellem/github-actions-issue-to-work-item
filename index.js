@@ -72,13 +72,17 @@ async function main() {
       if (vm.env.logLevel >= 300) {
         console.log("Print full work item object:");
         console.log(workItem);
-      }
+      }      
 
       // link the issue to the work item via AB# syntax with AzureBoards+GitHub App
-      if (vm.env.logLevel >= 200)
-        console.log("Updating issue body text with AB# syntax");
-
+      console.log("Updating issue body text with AB# syntax");
+      
+      if (vm.env.ghToken === "") {
+        console.log("Warning: Missing GitHub token and unable to update issue with AB# syntax.")
+      }
+      
       issue = vm.env.ghToken != "" ? await updateIssueBody(vm, workItem) : "";
+
     } else {
       console.log(`Existing work item found: ${workItem.id}`);
     }
