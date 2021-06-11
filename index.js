@@ -147,29 +147,29 @@ async function create(vm) {
     {
       op: "add",
       path: "/fields/System.Title",
-      value: vm.title + " (GitHub Issue #" + vm.number + ")",
+      value: vm.title + " (GitHub Issue #" + vm.number + ")"
     },
     {
       op: "add",
       path: "/fields/System.Description",
-      value: vm.body,
+      value: vm.body
     },
     {
       op: "add",
       path: "/fields/Microsoft.VSTS.TCM.ReproSteps",
-      value: vm.body,
+      value: vm.body
     },
     {
       op: "add",
       path: "/fields/System.Tags",
-      value: "GitHub Issue; " + vm.repo_name,
+      value: "GitHub Issue; " + vm.repo_name
     },
     {
       op: "add",
       path: "/relations/-",
       value: {
         rel: "Hyperlink",
-        url: vm.url,
+        url: vm.url
       },
     },
     {
@@ -185,13 +185,18 @@ async function create(vm) {
         '" target="_new">' +
         vm.repo_fullname +
         "</a> by " +
-        vm.user,
+        vm.user
     },
     {
       op: "add",
       path: "/fields/Microsoft.VSTS.Common.StackRank",
-      value: 1,
+      value: 1
     },
+    {
+      op: "add",
+      path: "/fields/Microsoft.VSTS.Common.BacklogPriority",
+      value: 1
+    } 
   ];
 
   // if area path is not empty, set it
@@ -199,7 +204,7 @@ async function create(vm) {
     patchDocument.push({
       op: "add",
       path: "/fields/System.AreaPath",
-      value: vm.env.areaPath,
+      value: vm.env.areaPath
     });
   }
 
@@ -208,7 +213,7 @@ async function create(vm) {
     patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
-      value: vm.env.iterationPath,
+      value: vm.env.iterationPath
     });
   }
 
@@ -218,7 +223,7 @@ async function create(vm) {
     patchDocument.push({
       op: "add",
       path: "/fields/System.CreatedBy",
-      value: vm.user,
+      value: vm.user
     });
   }
 
