@@ -217,6 +217,18 @@ async function create(vm) {
     });
   }
 
+  // if parent url is not empty, set it
+  if (vm.env.parentUrl != "") {
+    patchDocument.push({
+      op: "add",
+      path: "/relations/-",
+      value: {
+        "rel": "System.LinkTypes.Hierarchy-Reverse",
+        url: vm.env.parentUrl
+      }
+    });
+  }
+
   // if the bypassrules are on, then use the issue.sender.user.name value for the person
   // who created the issue
   if (vm.env.bypassRules) {
@@ -659,6 +671,7 @@ function getValuesFromPayload(payload, env) {
 			project: env.ado_project != undefined ? env.ado_project : "",
 			areaPath: env.ado_area_path != undefined ? env.ado_area_path : "",
 			iterationPath: env.ado_iteration_path != undefined ? env.ado_iteration_path : "",
+      parentUrl: env.ado_parent_url != undefined ? env.ado_parent_url : "",
 			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
 			closedState: env.ado_close_state != undefined ? env.ado_close_state : "Closed",
 			newState: env.ado_new_state != undefined ? env.ado_new_state : "New",
