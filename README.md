@@ -1,5 +1,3 @@
-![Sync Issue to Azure DevOps work item](https://github.com/danhellem/github-actions-issue-to-work-item/workflows/Sync%20Issue%20to%20Azure%20DevOps%20work%20item/badge.svg?event=issues)
-
 # Sync GitHub issue to Azure DevOps work item
 
 Create work item in Azure DevOps when a GitHub Issue is created
