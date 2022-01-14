@@ -153,7 +153,7 @@ async function create(vm) {
     {
       op: "add",
       path: "/fields/System.Title",
-      value: vm.title + " (GitHub Issue #" + vm.number + ")"
+      value: vm.title + ` (GitHub Issue #${vm.number})`
     },
     {
       op: "add",
@@ -181,17 +181,7 @@ async function create(vm) {
     {
       op: "add",
       path: "/fields/System.History",
-      value:
-        'GitHub <a href="' +
-        vm.url +
-        '" target="_new">issue #' +
-        vm.number +
-        '</a> created in <a href="' +
-        vm.repo_url +
-        '" target="_new">' +
-        vm.repo_fullname +
-        "</a> by " +
-        vm.user
+      value: `GitHub <a href="${vm.url}" target="_new">issue #${vm.number}</a> created in <a href="${vm.repo_url}" target="_new">${vm.repo_fullname}</a> by ${vm.user}`
     },
     {
       op: "add",
@@ -281,10 +271,8 @@ async function update(vm, workItem) {
 
   var body = vm.body.replace(`AB#${workItem.id}`, '').trim();
   var converter = new showdown.Converter();
-  var html = converter.makeHtml(body);
-  
+  var html = converter.makeHtml(body);  
   converter = null;
-
   let patchDocument = [];
 
   if (
@@ -347,13 +335,7 @@ async function comment(vm, workItem) {
     patchDocument.push({
       op: "add",
       path: "/fields/System.History",
-      value:
-        '<a href="' +
-        vm.comment_url +
-        '" target="_new">GitHub issue comment added</a> by ' +
-        vm.user +
-        "</br></br>" +
-        html,
+      value: `<a href="${vm.comment_url}" target="_new">GitHub issue comment added</a> by ${vm.user}</br></br>${html}`,
     });
   }
 
@@ -386,15 +368,7 @@ async function close(vm, workItem) {
     patchDocument.push({
       op: "add",
       path: "/fields/System.History",
-      value:
-        'GitHub <a href="' +
-        vm.url +
-        '" target="_new">issue #' +
-        vm.number +
-        "</a> was closed on " +
-        vm.closed_at +
-        " by " +
-        vm.user,
+      value: `GitHub <a href="${vm.url}" target="_new">issue #${vm.number}</a> closed by ${vm.user}`,
     });
   }
 
@@ -426,7 +400,7 @@ async function reopened(vm, workItem) {
   patchDocument.push({
     op: "add",
     path: "/fields/System.History",
-    value: "GitHub issue reopened by " + vm.user,
+    value: `GitHub issue reopened by ${vm.user}`,
   });
 
   // verbose logging
@@ -511,9 +485,7 @@ async function find(vm) {
   try {
     client = await connection.getWorkItemTrackingApi();
   } catch (error) {
-    console.log(
-      "Error: Connecting to organization. Check the spelling of the organization name and ensure your token is scoped correctly."
-    );
+    console.log("Error: Connecting to organization. Check the spelling of the organization name and ensure your token is scoped correctly.");
     core.setFailed(error);
     return -1;
   }
