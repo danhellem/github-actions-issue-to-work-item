@@ -279,8 +279,9 @@ async function create(vm) {
 async function update(vm, workItem) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'update' method...`);
 
+  var body = vm.body.replace(`AB#${workItem.id}`, '').trim();
   var converter = new showdown.Converter();
-  var html = converter.makeHtml(vm.body);
+  var html = converter.makeHtml(body);
   
   converter = null;
 
