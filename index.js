@@ -1,6 +1,7 @@
 const core = require(`@actions/core`);
 const github = require(`@actions/github`);
-const azdev = require(`azure-devops-node-api`);
+const azdev = require('azure-devops-node-api');
+const showdown = require('showdown');
 
 const debug = false; // debug mode for testing...always set to false before doing a commit
 const testPayload = []; // used for debugging, cut and paste payload
@@ -142,6 +143,11 @@ async function main() {
 // create Work Item via https://docs.microsoft.com/en-us/rest/api/azure/devops/
 async function create(vm) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'create' method...`);
+  
+  var converter = new showdown.Converter();
+  var html = converter.makeHtml(vm.body);
+  
+  converter = null;
 
   let patchDocument = [
     {
@@ -152,12 +158,12 @@ async function create(vm) {
     {
       op: "add",
       path: "/fields/System.Description",
-      value: vm.body
+      value: html
     },
     {
       op: "add",
       path: "/fields/Microsoft.VSTS.TCM.ReproSteps",
-      value: vm.body
+      value: html
     },
     {
       op: "add",
@@ -273,6 +279,11 @@ async function create(vm) {
 async function update(vm, workItem) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'update' method...`);
 
+  var converter = new showdown.Converter();
+  var html = converter.makeHtml(vm.body);
+  
+  converter = null;
+
   let patchDocument = [];
 
   if (
@@ -286,20 +297,17 @@ async function update(vm, workItem) {
     });
   }
 
-  if (
-    workItem.fields["System.Description"] != vm.body ||
-    workItem.fields["Microsoft.VSTS.TCM.ReproSteps"] != vm.body
-  ) {
+  if (workItem.fields["System.Description"] != html || workItem.fields["Microsoft.VSTS.TCM.ReproSteps"] != html ) {
     patchDocument.push(
       {
         op: "add",
         path: "/fields/System.Description",
-        value: vm.body,
+        value: html,
       },
       {
         op: "add",
         path: "/fields/Microsoft.VSTS.TCM.ReproSteps",
-        value: vm.body,
+        value: html,
       }
     );
   }
@@ -327,6 +335,11 @@ async function update(vm, workItem) {
 async function comment(vm, workItem) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'comment' method...`);
 
+  var converter = new showdown.Converter();
+  var html = converter.makeHtml(vm.comment_text);
+  
+  converter = null;
+
   let patchDocument = [];
 
   if (vm.comment_text != "") {
@@ -339,7 +352,7 @@ async function comment(vm, workItem) {
         '" target="_new">GitHub issue comment added</a> by ' +
         vm.user +
         "</br></br>" +
-        vm.comment_text,
+        html,
     });
   }
 
