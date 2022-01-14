@@ -1,3 +1,7 @@
+# dependencies
+/node_modules
+node_modules
+
 # Logs
 logs
 *.log
@@ -101,9 +105,3 @@ dist
 
 # TernJS port file
 .tern-port
-
-node_modules
-node_modules/
-node_modules/*
-**/node_modules
-node_modules/**
