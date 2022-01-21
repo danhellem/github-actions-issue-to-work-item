@@ -1,6 +1,7 @@
 const core = require(`@actions/core`);
 const github = require(`@actions/github`);
-const azdev = require(`azure-devops-node-api`);
+const azdev = require('azure-devops-node-api');
+const showdown = require('showdown');
 
 const debug = false; // debug mode for testing...always set to false before doing a commit
 const testPayload = []; // used for debugging, cut and paste payload
@@ -142,22 +143,27 @@ async function main() {
 // create Work Item via https://docs.microsoft.com/en-us/rest/api/azure/devops/
 async function create(vm) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'create' method...`);
+  
+  var converter = new showdown.Converter();
+  var html = converter.makeHtml(vm.body);
+  
+  converter = null;
 
   let patchDocument = [
     {
       op: "add",
       path: "/fields/System.Title",
-      value: vm.title + " (GitHub Issue #" + vm.number + ")"
+      value: vm.title + ` (GitHub Issue #${vm.number})`
     },
     {
       op: "add",
       path: "/fields/System.Description",
-      value: vm.body
+      value: html
     },
     {
       op: "add",
       path: "/fields/Microsoft.VSTS.TCM.ReproSteps",
-      value: vm.body
+      value: html
     },
     {
       op: "add",
@@ -175,17 +181,7 @@ async function create(vm) {
     {
       op: "add",
       path: "/fields/System.History",
-      value:
-        'GitHub <a href="' +
-        vm.url +
-        '" target="_new">issue #' +
-        vm.number +
-        '</a> created in <a href="' +
-        vm.repo_url +
-        '" target="_new">' +
-        vm.repo_fullname +
-        "</a> by " +
-        vm.user
+      value: `GitHub <a href="${vm.url}" target="_new">issue #${vm.number}</a> created in <a href="${vm.repo_url}" target="_new">${vm.repo_fullname}</a> by ${vm.user}`
     },
     {
       op: "add",
@@ -273,6 +269,10 @@ async function create(vm) {
 async function update(vm, workItem) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'update' method...`);
 
+  var body = vm.body.replace(`AB#${workItem.id}`, '').trim();
+  var converter = new showdown.Converter();
+  var html = converter.makeHtml(body);  
+  converter = null;
   let patchDocument = [];
 
   if (
@@ -286,20 +286,17 @@ async function update(vm, workItem) {
     });
   }
 
-  if (
-    workItem.fields["System.Description"] != vm.body ||
-    workItem.fields["Microsoft.VSTS.TCM.ReproSteps"] != vm.body
-  ) {
+  if (workItem.fields["System.Description"] != html || workItem.fields["Microsoft.VSTS.TCM.ReproSteps"] != html ) {
     patchDocument.push(
       {
         op: "add",
         path: "/fields/System.Description",
-        value: vm.body,
+        value: html,
       },
       {
         op: "add",
         path: "/fields/Microsoft.VSTS.TCM.ReproSteps",
-        value: vm.body,
+        value: html,
       }
     );
   }
@@ -327,19 +324,18 @@ async function update(vm, workItem) {
 async function comment(vm, workItem) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'comment' method...`);
 
+  var converter = new showdown.Converter();
+  var html = converter.makeHtml(vm.comment_text);
+  
+  converter = null;
+
   let patchDocument = [];
 
   if (vm.comment_text != "") {
     patchDocument.push({
       op: "add",
       path: "/fields/System.History",
-      value:
-        '<a href="' +
-        vm.comment_url +
-        '" target="_new">GitHub issue comment added</a> by ' +
-        vm.user +
-        "</br></br>" +
-        vm.comment_text,
+      value: `<a href="${vm.comment_url}" target="_new">GitHub issue comment added</a> by ${vm.user}</br></br>${html}`,
     });
   }
 
@@ -372,15 +368,7 @@ async function close(vm, workItem) {
     patchDocument.push({
       op: "add",
       path: "/fields/System.History",
-      value:
-        'GitHub <a href="' +
-        vm.url +
-        '" target="_new">issue #' +
-        vm.number +
-        "</a> was closed on " +
-        vm.closed_at +
-        " by " +
-        vm.user,
+      value: `GitHub <a href="${vm.url}" target="_new">issue #${vm.number}</a> closed by ${vm.user}`,
     });
   }
 
@@ -412,7 +400,7 @@ async function reopened(vm, workItem) {
   patchDocument.push({
     op: "add",
     path: "/fields/System.History",
-    value: "GitHub issue reopened by " + vm.user,
+    value: `GitHub issue reopened by ${vm.user}`,
   });
 
   // verbose logging
@@ -497,9 +485,7 @@ async function find(vm) {
   try {
     client = await connection.getWorkItemTrackingApi();
   } catch (error) {
-    console.log(
-      "Error: Connecting to organization. Check the spelling of the organization name and ensure your token is scoped correctly."
-    );
+    console.log("Error: Connecting to organization. Check the spelling of the organization name and ensure your token is scoped correctly.");
     core.setFailed(error);
     return -1;
   }
