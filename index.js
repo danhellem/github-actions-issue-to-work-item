@@ -426,7 +426,7 @@ async function label(vm, workItem) {
     patchDocument.push({
       op: "add",
       path: "/fields/System.Tags",
-      value: workItem.fields["System.Tags"] + ", " + vm.label,
+      value: workItem.fields["System.Tags"] + ", " + vm.label.replace(/\p{Emoji}/gu, ''),
     });
   }
 
