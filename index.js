@@ -301,6 +301,18 @@ async function update(vm, workItem) {
     );
   }
 
+  if (vm.comment_text != "") {
+    var comment_converter = new showdown.Converter();
+    var comment_html = comment_converter.makeHtml(vm.comment_text);  
+    comment_converter = null;
+
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.History",
+      value: `<a href="${vm.comment_url}" target="_new">GitHub issue comment edited</a> by ${vm.user}</br></br>${comment_html}`,
+    });
+  }
+
   // verbose logging
   if (vm.env.logLevel >= 300) {
     console.log("Print full patch object:");
