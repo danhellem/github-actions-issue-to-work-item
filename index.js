@@ -650,6 +650,7 @@ function getValuesFromPayload(payload, env) {
 			newState: env.ado_new_state != undefined ? env.ado_new_state : "New",
 			activeState: env.ado_active_state != undefined ? env.ado_active_state : "Active",
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
+			parent: env.ado_parent != undefined ? env.ado_parent : ""
       logLevel: env.log_level != undefined ? env.log_level : 100
 		}
 	};
