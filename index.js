@@ -188,13 +188,13 @@ async function create(vm) {
   ];
   // if ado_parent is not empty, set it
   if (vm.env.parent != "") {
-    patchDocument.Push({
+    patchDocument.push({
 			op: "add",
       path: "/relations/-",
       value: {
         rel: "System.LinkTypes.Hierarchy-Reverse",
         url: "https://dev.azure.com/" + vm.env.organization + "/" + vm.env.project + "/_apis/wit/workItems/" + vm.env.parent
-			  }
+			}
     });
   }
   // if area path is not empty, set it
