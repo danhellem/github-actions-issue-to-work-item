@@ -207,7 +207,7 @@ async function create(vm) {
   if (vm.env.parent != "") {
     patchDocument.push({
       op: "add",
-      path: "/fields/Custom.ParentLink",
+      path: "/fields/System.ParentLink",
       value: vm.env.parent
     });
   }
