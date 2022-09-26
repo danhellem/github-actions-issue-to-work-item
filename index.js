@@ -207,7 +207,7 @@ async function create(vm) {
   if (vm.env.parent != "") {
     patchDocument.push({
       op: "add",
-      path: "/fields/System.ParentLink",
+      path: "/fields/System.LinkTypes.Hierarchy-Reverse",
       value: vm.env.parent
     });
   }
