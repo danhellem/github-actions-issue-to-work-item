@@ -174,8 +174,8 @@ async function create(vm) {
       op: "add",
       path: "/relations/-",
       value: {
-        rel: "https://dev.azure.com/GeneralMills/GithubActionsTest/_apis/wit/workItems/840193",
-        url: vm.url
+        rel: "System.LinkTypes.Hierarchy-Reverse",
+        url: "https://dev.azure.com/GeneralMills/GithubActionsTest/_apis/wit/workItems/840193"
       },
     },
     {
