@@ -174,7 +174,7 @@ async function create(vm) {
       op: "add",
       path: "/relations/-",
       value: {
-        rel: "Hyperlink",
+        rel: "https://dev.azure.com/@{env.ado_organization}/@{env.ado_project)}/_apis/wit/workItems/@{env.ado_parent}",
         url: vm.url
       },
     },
@@ -201,14 +201,6 @@ async function create(vm) {
       op: "add",
       path: "/fields/System.AreaPath",
       value: vm.env.areaPath
-    });
-  }
-  // if parent is not empty, set it - Kevin McCarty
-  if (vm.env.parent != "") {
-    patchDocument.push({
-      op: "add",
-      path: "/fields/System.LinkTypes.Hierarchy-Reverse",
-      value: vm.env.parent
     });
   }
 
