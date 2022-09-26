@@ -203,6 +203,14 @@ async function create(vm) {
       value: vm.env.areaPath
     });
   }
+  // if parent is not empty, set it - Kevin McCarty
+  if (vm.env.parent != "") {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/Custom.ParentLink",
+      value: vm.env.parent
+    });
+  }
 
   // if iteration path is not empty, set it
   if (vm.env.iterationPath != "") {
