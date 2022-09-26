@@ -172,14 +172,6 @@ async function create(vm) {
     },
     {
       op: "add",
-      path: "/relations/-",
-      value: {
-        rel: "Hyperlink",
-        url: vm.url
-      },
-    },
-    {
-      op: "add",
       path: "/fields/System.History",
       value: `GitHub <a href="${vm.url}" target="_new">issue #${vm.number}</a> created in <a href="${vm.repo_url}" target="_new">${vm.repo_fullname}</a> by ${vm.user}`
     },
@@ -194,7 +186,17 @@ async function create(vm) {
       value: 1
     } 
   ];
-
+  // if ado_parent is not empty, set it
+  if (vm.env.parent != "") {
+    patchDocument.Push({
+			op: "add",
+      path: "/relations/-",
+      value: {
+        rel: "System.LinkTypes.Hierarchy-Reverse",
+        url: "https://dev.azure.com/" + vm.env.organization + "/" + vm.env.project + "/_apis/wit/workItems/" + vm.env.parent
+			  }
+    });
+  }
   // if area path is not empty, set it
   if (vm.env.areaPath != "") {
     patchDocument.push({
@@ -650,6 +652,7 @@ function getValuesFromPayload(payload, env) {
 			newState: env.ado_new_state != undefined ? env.ado_new_state : "New",
 			activeState: env.ado_active_state != undefined ? env.ado_active_state : "Active",
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
+			parent: env.ado_parent != undefined ? env.ado_parent : "",
       logLevel: env.log_level != undefined ? env.log_level : 100
 		}
 	};
