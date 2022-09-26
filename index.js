@@ -174,7 +174,7 @@ async function create(vm) {
       op: "add",
       path: "/relations/-",
       value: {
-        rel: "https://dev.azure.com/@{env.ado_organization}/@{env.ado_project)}/_apis/wit/workItems/@{env.ado_parent}",
+        rel: "https://dev.azure.com/@{vm.env.organization}/@{vm.env.project)}/_apis/wit/workItems/@{vm.env.parent}",
         url: vm.url
       },
     },
