@@ -144,7 +144,7 @@ async function main() {
 async function create(vm) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'create' method...`);
   
-  var converter = new showdown.Converter();
+  var converter = new showdown.Converter({tables: 'true'});
   var html = converter.makeHtml(vm.body);
   
   converter = null;
@@ -270,7 +270,7 @@ async function update(vm, workItem) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'update' method...`);
 
   var body = vm.body.replace(`AB#${workItem.id}`, '').trim();
-  var converter = new showdown.Converter();
+  var converter = new showdown.Converter({tables: 'true'});
   var html = converter.makeHtml(body);  
   converter = null;
   let patchDocument = [];
@@ -324,7 +324,7 @@ async function update(vm, workItem) {
 async function comment(vm, workItem) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'comment' method...`);
 
-  var converter = new showdown.Converter();
+  var converter = new showdown.Converter({tables: 'true'});
   var html = converter.makeHtml(vm.comment_text);
   
   converter = null;
