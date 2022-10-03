@@ -42,6 +42,8 @@ on:
   issues:
     types:
       [opened, edited, deleted, closed, reopened, labeled, unlabeled, assigned]
+  issue_comment:
+    types: [created, edited, deleted]
 
 jobs:
   alert:
