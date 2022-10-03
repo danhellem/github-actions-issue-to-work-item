@@ -301,6 +301,21 @@ async function update(vm, workItem) {
     );
   }
 
+  var commentEdited = false;
+  if (vm.comment_text != "") {
+    var comment_converter = new showdown.Converter();
+    var comment_html = comment_converter.makeHtml(vm.comment_text);  
+    comment_converter = null;
+
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.History",
+      value: `<a href="${vm.comment_url}" target="_new">GitHub issue and comment edited</a> by ${vm.user}</br></br>${comment_html}`,
+    });
+    commentEdited = true;
+  }
+  
+
   // verbose logging
   if (vm.env.logLevel >= 300) {
     console.log("Print full patch object:");
@@ -308,11 +323,13 @@ async function update(vm, workItem) {
   }
 
   if (patchDocument.length > 0) {
-    patchDocument.push({
-      op: "add",
-      path: "/fields/System.History",
-      value: "GitHub issue updated by " + vm.user,
-    });
+    if (!commentEdited){
+      patchDocument.push({
+        op: "add",
+        path: "/fields/System.History",
+        value: "GitHub issue updated by " + vm.user,
+      });
+    }
 
     return await updateWorkItem(patchDocument, workItem.id, vm.env);
   } else {

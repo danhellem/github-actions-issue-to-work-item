@@ -3,6 +3,8 @@ name: Sync Issue to Azure DevOps work item
 on:
   issues:
     types: [opened, edited, deleted, closed, reopened, labeled, unlabeled]
+  issue_comment:
+    types: [created, edited, deleted]
 
 jobs:
   alert:
@@ -15,7 +17,7 @@ jobs:
         github_token: '${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}'
         ado_organization: '${{ secrets.ADO_ORGANIZATION }}'
         ado_project: '${{ secrets.ADO_PROJECT }}'
-        ado_wit: 'GitHub Issue' 
+        ado_wit: 'Bug' 
         ado_new_state: 'New'
         ado_close_state: 'Closed'
         ado_active_state: 'Active'  
