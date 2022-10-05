@@ -187,32 +187,41 @@ async function create(vm) {
     } 
   ];
   // if ado_parent is not empty, set it
-  if (vm.env.parent != "") {
+  if (vm.env.ado_parent != "") {
     patchDocument.push({
 			op: "add",
       path: "/relations/-",
       value: {
         rel: "System.LinkTypes.Hierarchy-Reverse",
-        url: "https://dev.azure.com/" + vm.env.organization + "/" + vm.env.project + "/_apis/wit/workItems/" + vm.env.parent
+        url: "https://dev.azure.com/" + vm.env.organization + "/" + vm.env.project + "/_apis/wit/workItems/" + vm.env.ado_parent
 			}
     });
   }
   // if area path is not empty, set it
-  if (vm.env.areaPath != "") {
+  if (vm.env.ado_areaPath != "") {
     patchDocument.push({
       op: "add",
       path: "/fields/System.AreaPath",
-      value: vm.env.areaPath
+      value: vm.env.ado_areaPath
     });
   }
 
   // if iteration path is not empty, set it
-  if (vm.env.iterationPath != "") {
+  if (vm.env.ado_iteration != "") {
     patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
-      value: vm.env.iterationPath
+      value: vm.ado_iteration
     });
+  }
+	
+	// if story_points path is not empty, set it
+  if (vm.env.ado_story_points != "") {
+	patchDocument.push({
+		op: "add",
+		path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
+		value: vm.ado_story_points
+	 });
   }
 
   // if the bypassrules are on, then use the issue.sender.user.name value for the person
@@ -301,6 +310,44 @@ async function update(vm, workItem) {
         value: html,
       }
     );
+  }
+  // if ado_parent is not empty, set it
+  if (vm.env.ado_parent != "") {
+    patchDocument.push({
+      op: "add",
+      path: "/relations/-",
+      value: {
+        rel: "System.LinkTypes.Hierarchy-Reverse",
+        url: "https://dev.azure.com/" + vm.env.organization + "/" + vm.env.project + "/_apis/wit/workItems/" + vm.env.ado_parent
+	    }
+    });
+  }
+	// if area path is not empty, set it
+  if (vm.env.ado_areaPath != "") {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.AreaPath",
+      value: vm.env.ado_areaPath
+    });
+  }
+
+  // if iteration path is not empty, set it
+  if (vm.env.ado_iteration != "") {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.IterationPath",
+      value: vm.env.ado_iteration
+    });
+  }
+	
+  // if story_points is not empty, set it
+  if (vm.env.ado_story_points != "") {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
+      type: "double",
+      value: vm.env.ado_story_points
+    });
   }
 
   // verbose logging
@@ -645,14 +692,15 @@ function getValuesFromPayload(payload, env) {
 			adoToken: env.ado_token != undefined ? env.ado_token : "",
 			ghToken: env.github_token != undefined ? env.github_token : "",
 			project: env.ado_project != undefined ? env.ado_project : "",
-			areaPath: env.ado_area_path != undefined ? env.ado_area_path : "",
-			iterationPath: env.ado_iteration_path != undefined ? env.ado_iteration_path : "",
+			ado_areaPath: env.ado_area_path != undefined ? env.ado_area_path : "",
 			wit: env.ado_wit != undefined ? env.ado_wit : "Issue",
 			closedState: env.ado_close_state != undefined ? env.ado_close_state : "Closed",
 			newState: env.ado_new_state != undefined ? env.ado_new_state : "New",
 			activeState: env.ado_active_state != undefined ? env.ado_active_state : "Active",
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
-			parent: env.ado_parent != undefined ? env.ado_parent : "",
+			ado_parent: env.ado_parent != undefined ? env.ado_parent : "",
+			ado_iteration: env.ado_iteration != undefined ? env.ado_iteration : "",
+      ado_story_points: env.ado_story_points != undefined ? env.ado_story_points: "",
       logLevel: env.log_level != undefined ? env.log_level : 100
 		}
 	};
