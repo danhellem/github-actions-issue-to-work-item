@@ -334,6 +334,14 @@ async function update(vm, workItem) {
   // if iteration path is not empty, set it
   if (vm.env.ado_iteration != "") {
     patchDocument.push({
+			op: "add",
+			path: "/fields/System.IterationPath",
+			value: {
+				name: "${{ vm.env.project }}//${{ vm.env.ado_iteration }}",
+				url: "https://dev.azure.com/" + vm.env.organization + "/" + vm.env.project + "/_apis/wit/classificationnodes/Iterations?api-version=5.0"
+			}
+		})
+	  patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
       value: vm.env.ado_iteration
@@ -686,6 +694,7 @@ function getValuesFromPayload(payload, env) {
 		comment_url: "",
 		organization: "",
 		repository: "",
+	  	
 		env: {
 			organization: env.ado_organization != undefined ? env.ado_organization : "",
 			orgUrl: env.ado_organization != undefined ? "https://dev.azure.com/" + env.ado_organization : "",
