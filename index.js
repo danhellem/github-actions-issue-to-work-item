@@ -333,15 +333,7 @@ async function update(vm, workItem) {
 
   // if iteration path is not empty, set it
   if (vm.env.ado_iteration != "") {
-    patchDocument.push({
-			op: "add",
-			path: "/fields/System.IterationPath",
-			value: {
-				name: "${{ vm.env.project }}//${{ vm.env.ado_iteration }}",
-				url: "https://dev.azure.com/" + vm.env.organization + "/" + vm.env.project + "/_apis/wit/classificationnodes/Iterations?api-version=5.0"
-			}
-		})
-	  patchDocument.push({
+      patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
       value: vm.env.ado_iteration
