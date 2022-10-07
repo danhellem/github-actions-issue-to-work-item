@@ -25,7 +25,16 @@ If a different name is used change the "name" field in "fieldValueByName" for Sp
 
 2. Add an optional secret named `GH_PERSONAL_ACCESS_TOKEN` containing a [GitHub Personal Access Token](https://help.github.com/en/enterprise/2.17/user/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) with "repo" permissions. See optional information below.
 
-3. Install the [Azure Boards App](https://github.com/marketplace/azure-boards) from the GitHub Marketplace
+3. Install the [Azure Boards App](https://github.com/marketplace/azure-boards) from the GitHub Marketplace.  To enable the app for a repository follow these steps:
+-  Navigate to the organization the repository is in.
+-  Click on "Settings" across the banner below the organization name.
+-  Click on "GitHub Apps" in the menu on the left.
+-  Click on "Configure" for the Azure Boards applicaiton.
+-  Click "Save" towards the bottom the page.
+-  Sign in with your Microsoft account.
+-  From the menu select the project you want to connect.  You can use the search feature to narrow down the choices.
+-  Click "Continue"
+-  Pick the correct Azure DevOps repository to add the Azure Boards feature.
 
 4. Add a workflow file which responds to issue events.
 
