@@ -336,7 +336,7 @@ async function update(vm, workItem) {
       patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
-      value: vm.env.ado_iteration
+      value: "${{ ado_iteration }}"
     });
   }
 	
@@ -346,7 +346,7 @@ async function update(vm, workItem) {
       op: "add",
       path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
       type: "double",
-      value: vm.env.ado_story_points
+      value: "${{ ado_story_points }}
     });
   }
 
@@ -686,8 +686,8 @@ function getValuesFromPayload(payload, env) {
 		comment_url: "",
 		organization: "",
 		repository: "",
-	  ado_iteration: ado_iteration != undefined ? ado_iteration : "",
-	  ado_story_points: ado_story_points != undefined ? ado_story_points: "",
+		ado_iteration: vm.env.ado_iteration != undefined ? vm.env.ado_iteration : "",
+		ado_story_points: vm.env.ado_story_points != undefined ? vm.env.ado_story_points: "",
 		env: {
 			organization: env.ado_organization != undefined ? env.ado_organization : "",
 			orgUrl: env.ado_organization != undefined ? "https://dev.azure.com/" + env.ado_organization : "",
