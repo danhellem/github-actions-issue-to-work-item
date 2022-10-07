@@ -216,7 +216,7 @@ async function create(vm) {
   }
 	
 	// if story_points path is not empty, set it
-  if (vm.env.ado_story_points != "null") {
+  if (vm.env.ado_story_points != "") {
 	patchDocument.push({
 	op: "add",
 	path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
@@ -341,7 +341,7 @@ async function update(vm, workItem) {
   }
 	
   // if story_points is not empty, set it
-  if (vm.env.ado_story_points != "null") {
+  if (vm.env.ado_story_points != "") {
     patchDocument.push({
       op: "add",
       path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
@@ -700,7 +700,7 @@ function getValuesFromPayload(payload, env) {
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
 			ado_parent: env.ado_parent != undefined ? env.ado_parent : "",
 			ado_iteration: env.ado_iteration != undefined ? env.ado_iteration : "",
-			ado_story_points: env.ado_story_points != undefined ? env.ado_story_points: null,
+			ado_story_points: env.ado_story_points != undefined ? env.ado_story_points: "",
 			logLevel: env.log_level != undefined ? env.log_level : 100
 		}
 	};
