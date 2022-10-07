@@ -336,7 +336,7 @@ async function update(vm, workItem) {
       patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
-      value: vm.env.ado_interation
+      value: vm.ado_interation
     });
   }
 	
@@ -346,7 +346,7 @@ async function update(vm, workItem) {
       op: "add",
       path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
       type: "double",
-      value: vm.env.ado_story_points
+      value: vm.ado_story_points
     });
   }
 
