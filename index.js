@@ -341,7 +341,7 @@ async function update(vm, workItem) {
   }
 	
   // if story_points is not empty, set it
-  if (vm.env.ado_story_points != "") {
+  if (vm.env.ado_story_points != null) {
     patchDocument.push({
       op: "add",
       path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
