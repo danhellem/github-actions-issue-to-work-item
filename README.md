@@ -28,9 +28,9 @@ Action is triggered on the following:
 ## Setup
 
 You'll need the following to setup the action:
-1. Name of the Azure DevOps Project Board to send the GitHub issues to.
-2. ADO Work Order ID to assign "Related Work" (if needed)
-3. What Azure DevOps "Area" the tickets should be assigned to by default (if needed)
+1. Name of the Azure DevOps Project Board to send the GitHub issues to. `ado_project`
+2. ADO Work Order ID to assign "Related Work" (if needed) `ado_parent`
+3. What Azure DevOps "Area" the tickets should be assigned to by default (if needed) `ado_area_path`
 
 ## Example usage
 
