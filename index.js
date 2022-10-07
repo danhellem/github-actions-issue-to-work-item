@@ -239,6 +239,13 @@ async function create(vm) {
       value: "1"
     });
   }
+  if (vm.env.ado_assignee != "null"){
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.AssignedTo",
+      value: vm.env.ado_assignee
+    });
+  }
 
   // if the bypassrules are on, then use the issue.sender.user.name value for the person
   // who created the issue
@@ -380,6 +387,13 @@ async function update(vm, workItem) {
       value: "1"
     });
   }
+  if (vm.env.ado_assignee != "null"){
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.AssignedTo",
+      value: vm.env.ado_assignee
+    });
+  }
 
   // verbose logging
   if (vm.env.logLevel >= 300) {
@@ -442,6 +456,7 @@ async function comment(vm, workItem) {
       value: vm.env.ado_story_points
     });
   }
+  
 	// if story_points is null, set it to 1
   if (vm.env.ado_story_points == "null") {
     patchDocument.push({
@@ -449,6 +464,14 @@ async function comment(vm, workItem) {
       path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
       type: "double",
       value: "1"
+    });
+  }
+
+  if (vm.env.ado_assignee != "null"){
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.AssignedTo",
+      value: vm.env.ado_assignee
     });
   }
 
@@ -767,6 +790,7 @@ function getValuesFromPayload(payload, env) {
 			ado_iteration: env.ado_iteration != undefined ? env.ado_iteration : "",
 			ado_story_points: env.ado_story_points != undefined ? env.ado_story_points: "1",
 			ado_current_sprint: env.ado_current_sprint != undefined ? env.ado_current_sprint: "",
+      ado_assignee: env.ado_assignee != undefined ? env.ado_assignee: "",
 			logLevel: env.log_level != undefined ? env.log_level : 100
 		}
 	};
