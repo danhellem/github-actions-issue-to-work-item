@@ -211,7 +211,7 @@ async function create(vm) {
     patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
-      value: vm.ado_iteration
+      value: ado_iteration
     });
   }
 	
@@ -686,7 +686,8 @@ function getValuesFromPayload(payload, env) {
 		comment_url: "",
 		organization: "",
 		repository: "",
-	  	
+	  ado_iteration: ado_iteration != undefined ? ado_iteration : "",
+	  ado_story_points: ado_story_points != undefined ? ado_story_points: "",
 		env: {
 			organization: env.ado_organization != undefined ? env.ado_organization : "",
 			orgUrl: env.ado_organization != undefined ? "https://dev.azure.com/" + env.ado_organization : "",
@@ -700,8 +701,6 @@ function getValuesFromPayload(payload, env) {
 			activeState: env.ado_active_state != undefined ? env.ado_active_state : "Active",
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
 			ado_parent: env.ado_parent != undefined ? env.ado_parent : "",
-			ado_iteration: env.ado_iteration != undefined ? env.ado_iteration : "",
-      ado_story_points: env.ado_story_points != undefined ? env.ado_story_points: "",
       logLevel: env.log_level != undefined ? env.log_level : 100
 		}
 	};
