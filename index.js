@@ -214,6 +214,12 @@ async function create(vm) {
       value: vm.env.ado_iteration
     });
   }
+	else{
+		patchDocument.push({
+      op: "add",
+      path: "/fields/System.IterationPath",
+      value: vm.env.ado_current_Sprint
+    });
 	
 	// if story_points path is not empty, set it
   if (vm.env.ado_story_points != "null") {
@@ -349,6 +355,12 @@ async function update(vm, workItem) {
       value: vm.env.ado_iteration
     });
   }
+	else{
+	patchDocument.push({
+		op: "add",
+		path: "/fields/System.IterationPath",
+		value: vm.env.ado_current_Sprint
+	});
 	
   // if story_points is not empty, set it
   if (vm.env.ado_story_points != "null") {
@@ -414,6 +426,12 @@ async function comment(vm, workItem) {
       value: vm.env.ado_iteration
     });
   }
+	else{
+	patchDocument.push({
+		op: "add",
+		path: "/fields/System.IterationPath",
+		value: vm.env.ado_current_Sprint
+	});
 	
   // if story_points is not null, set it
   if (vm.env.ado_story_points != "null") {
@@ -748,6 +766,7 @@ function getValuesFromPayload(payload, env) {
 			ado_parent: env.ado_parent != undefined ? env.ado_parent : "",
 			ado_iteration: env.ado_iteration != undefined ? env.ado_iteration : "",
 			ado_story_points: env.ado_story_points != undefined ? env.ado_story_points: "1",
+			ado_current_sprint: env.ado_current_sprint != undefined ? env.ado_current_sprint: "",
 			logLevel: env.log_level != undefined ? env.log_level : 100
 		}
 	};
