@@ -332,7 +332,7 @@ async function update(vm, workItem) {
   }
 
   // if iteration path is not empty, set it
-  if (vm.env.ado_iteration != null) {
+  if ((vm.env.ado_iteration).match(/^\w*\\\\+/)) {
       patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
