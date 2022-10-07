@@ -16,6 +16,7 @@ The id of the Work Item created or updated
 This action uses graphQL to get the Sprint and Story Points values from the project the issue is assigned to.  It relies on the fields to have the following names:
 - Story Points: "Story"
 - Iteration / Sprint: "Sprint"
+
 If a different name is used change the "name" field in "fieldValueByName" for Sprint or Story as needed.
 
 ## Example usage
