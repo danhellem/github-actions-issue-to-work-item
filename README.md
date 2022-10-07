@@ -25,6 +25,13 @@ Action is triggered on the following:
   - issues that are opened, edited, deleted, closed, reopened, labeled, unlabeled, or assigned
   - issue_comments that are created, edited, or deleted
 
+## Setup
+
+You'll need the following to setup the action:
+1. Name of the Azure DevOps Project Board to send the GitHub issues to.
+2. ADO Work Order ID to assign "Related Work" (if needed)
+3. What Azure DevOps "Area" the tickets should be assigned to by default (if needed)
+
 ## Example usage
 
 1. Add a secret named `ADO_PERSONAL_ACCESS_TOKEN` containing an [Azure Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate) with "read & write" permission for Work Items
