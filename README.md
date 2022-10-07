@@ -19,6 +19,12 @@ This action uses graphQL to get the Sprint and Story Points values from the proj
 
 If a different name is used change the "name" field in "fieldValueByName" for Sprint or Story as needed.
 
+## Triggers
+
+Action is triggered on the following:
+  - issues that are opened, edited, deleted, closed, reopened, labeled, unlabeled, or assigned
+  - issue_comments that are created, edited, or deleted
+
 ## Example usage
 
 1. Add a secret named `ADO_PERSONAL_ACCESS_TOKEN` containing an [Azure Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate) with "read & write" permission for Work Items
