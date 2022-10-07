@@ -387,6 +387,25 @@ async function comment(vm, workItem) {
       value: `<a href="${vm.comment_url}" target="_new">GitHub issue comment added</a> by ${vm.user}</br></br>${html}`,
     });
   }
+  // if iteration path is not empty, set it
+  if ((vm.env.ado_iteration).match(/^((?!null).)*$/)) {
+      patchDocument.push({
+      op: "add",
+      path: "/fields/System.IterationPath",
+      value: vm.env.ado_iteration
+    });
+  }
+	
+  // if story_points is not empty, set it
+  if (vm.env.ado_story_points != "null") {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
+      type: "double",
+      value: vm.env.ado_story_points
+    });
+  }
+
 
   // verbose logging
   if (vm.env.logLevel >= 300) {
@@ -700,7 +719,7 @@ function getValuesFromPayload(payload, env) {
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
 			ado_parent: env.ado_parent != undefined ? env.ado_parent : "",
 			ado_iteration: env.ado_iteration != undefined ? env.ado_iteration : "",
-			ado_story_points: env.ado_story_points != undefined ? env.ado_story_points: "",
+			ado_story_points: env.ado_story_points != undefined ? env.ado_story_points: "null",
 			logLevel: env.log_level != undefined ? env.log_level : 100
 		}
 	};
