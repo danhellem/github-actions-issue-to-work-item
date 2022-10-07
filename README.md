@@ -37,30 +37,86 @@ The id of the Work Item created or updated
      **Warning:** Setting `log_level` to 300 will log out environment info, work items, and issue data. Only use 300 when debugging issues.
 
 ```yaml
-name: Sync issue to Azure DevOps work item
+name: GraphQL Sync issue to Azure DevOps work item
 
 on:
   issues:
     types:
       [opened, edited, deleted, closed, reopened, labeled, unlabeled, assigned]
+  issue_comment:
+    types:
+      [created, edited, deleted]
+      
+env:
+  GH_TOKEN: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"
 
 jobs:
-  alert:
-    runs-on: ubuntu-latest
+  graphql:
+    runs-on: gcp
+    container: docker.generalmills.com/k8s-ghcli:44-dea02e4
+    name: graphql
+    permissions:
+      actions: none
+      checks: none
+      contents: none
+      deployments: none
+      id-token: none
+      issues: read
+      discussions: none
+      packages: none
+      pages: none
+      pull-requests: none
+      repository-projects: none
+      security-events: none
+      statuses: none
+    outputs:
+      gh_iteration: ${{ steps.get-query.outputs.iteration }}
+      gh_story_points: ${{ steps.get-query.outputs.story_points }}
     steps:
-      - uses: danhellem/github-actions-issue-to-work-item@master
-        env:
-          ado_token: "${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}"
-          github_token: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"
-          ado_organization: "ado_organization_name"
-          ado_project: "your_project_name"
-          ado_area_path: "optional_area_path\\optional_area_path"
-          ado_iteration_path: "optional_iteration_path\\optional_iteration_path"
-          ado_parent: "parent work item ID"
-          ado_wit: "User Story"
-          ado_new_state: "New"
-          ado_active_state: "Active"
-          ado_close_state: "Closed"
-          ado_bypassrules: true
-          log_level: 100
+      - id: get-query
+        run: |
+          gh api graphql -f query='query get_iteration_title ($owner:String!, $repo:String!, $gh_issue_number:Int!) {
+            repository(name: $repo, owner: $owner) {
+              issue(number: $gh_issue_number) {
+                title
+                projectItems(first: 1) {
+                  nodes {
+                    sprint:fieldValueByName(name: "Sprint") {
+                      ... on ProjectV2ItemFieldIterationValue {
+                        title
+                      }
+                    }
+                    story:fieldValueByName(name: "Story") {
+                      ... on ProjectV2ItemFieldNumberValue {
+                        number
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }' -F owner=${{ github.repository_owner }} -F repo=${{ github.event.repository.name }} -F gh_issue_number=${{ github.event.issue.number }} > result.json
+          echo ""
+          echo ::set-output name=iteration::$(jq -r '.data.repository.issue.projectItems.nodes[0].sprint.title' result.json)
+          echo ::set-output name=story_points::$(jq -r '.data.repository.issue.projectItems.nodes[0].story.number' result.json)
+  adosync:
+    runs-on: gcp
+    needs: graphql
+    steps:    
+    - uses: GeneralMills/github-actions-issue-to-work-item@master
+      env:
+        ado_token: "${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}"
+        github_token: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"
+        ado_organization: "GeneralMills"
+        ado_project: "GithubActionsTest"
+        ado_area_path: "GithubActionsTest\\Support"
+        ado_wit: "User Story"
+        ado_new_state: "New"
+        ado_active_state: "Active"
+        ado_close_state: "Closed"
+        ado_parent: "840193"
+        ado_iteration: "GithubActionsTest\\${{ needs.graphql.outputs.gh_iteration }}"
+        ado_story_points: "${{ needs.graphql.outputs.gh_story_points }}"
+        ado_bypassrules: true
+        log_level: 400 
 ```
