@@ -678,7 +678,7 @@ function getValuesFromPayload(payload, env) {
 		repo_fullname: payload.repository.full_name != undefined ? payload.repository.full_name : "",
 		repo_name: payload.repository.name != undefined ? payload.repository.name : "",
 		repo_url: payload.repository.html_url != undefined ? payload.repository.html_url : "",
-		closed_at: payload.issue.closed_at != undefined ? payload.issue.closed_at : null,
+		closed_at: payload.issue.closed_at != undefined ? payload.issue.closed_at : "",
 		owner: payload.repository.owner != undefined ? payload.repository.owner.login : "",
 		sender_login: payload.sender.login != undefined ? payload.sender.login : '',
 		label: "",
@@ -701,7 +701,7 @@ function getValuesFromPayload(payload, env) {
 			ado_parent: env.ado_parent != undefined ? env.ado_parent : "",
 			ado_iteration: env.ado_iteration != undefined ? env.ado_iteration : "",
 			ado_story_points: env.ado_story_points != undefined ? env.ado_story_points: "",
-      			logLevel: env.log_level != undefined ? env.log_level : 100
+			logLevel: env.log_level != undefined ? env.log_level : 100
 		}
 	};
 
