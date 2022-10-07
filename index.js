@@ -207,20 +207,20 @@ async function create(vm) {
   }
 
   // if iteration path is not empty, set it
-  if (vm.env.ado_iteration != "undefined") {
+  if (vm.env.ado_iteration != "\\\\") {
     patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
-      value: vm.ado_iteration
+      value: vm.env.ado_iteration
     });
   }
 	
 	// if story_points path is not empty, set it
-  if (vm.env.ado_story_points != "undefined") {
+  if (vm.env.ado_story_points != null) {
 	patchDocument.push({
 		op: "add",
 		path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
-		value: vm.ado_story_points
+		value: vm.env.ado_story_points
 	 });
   }
 
@@ -336,7 +336,7 @@ async function update(vm, workItem) {
       patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
-      value: vm.ado_interation
+      value: vm.env.ado_interation
     });
   }
 	
@@ -346,7 +346,7 @@ async function update(vm, workItem) {
       op: "add",
       path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
       type: "double",
-      value: vm.ado_story_points
+      value: vm.env.ado_story_points
     });
   }
 
