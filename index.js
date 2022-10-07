@@ -214,13 +214,13 @@ async function create(vm) {
       value: vm.env.ado_iteration
     });
   }
-	else{
+	else {
 		patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
       value: vm.env.ado_current_sprint
     });
-	
+  }
 	// if story_points path is not empty, set it
   if (vm.env.ado_story_points != "null") {
 	patchDocument.push({
@@ -355,13 +355,13 @@ async function update(vm, workItem) {
       value: vm.env.ado_iteration
     });
   }
-	else{
-	patchDocument.push({
-		op: "add",
-		path: "/fields/System.IterationPath",
-		value: vm.env.ado_current_sprint
-	});
-	
+	else {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.IterationPath",
+      value: vm.env.ado_current_sprint
+    });
+  }
   // if story_points is not empty, set it
   if (vm.env.ado_story_points != "null") {
     patchDocument.push({
@@ -426,13 +426,13 @@ async function comment(vm, workItem) {
       value: vm.env.ado_iteration
     });
   }
-	else{
-	patchDocument.push({
-		op: "add",
-		path: "/fields/System.IterationPath",
-		value: vm.env.ado_current_sprint
-	});
-	
+	else {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.IterationPath",
+      value: vm.env.ado_current_sprint
+    });
+  }
   // if story_points is not null, set it
   if (vm.env.ado_story_points != "null") {
     patchDocument.push({
