@@ -207,7 +207,7 @@ async function create(vm) {
   }
 
   // if iteration path is not empty, set it
-  if (vm.env.ado_iteration != "\\\\") {
+  if (vm.env.ado_iteration != vm.env.ado_project"\\\\") {
     patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
@@ -332,7 +332,7 @@ async function update(vm, workItem) {
   }
 
   // if iteration path is not empty, set it
-  if (vm.env.ado_iteration != "undefined") {
+  if (vm.env.ado_iteration != vm.env.ado_project"\\\\") {
       patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
@@ -341,7 +341,7 @@ async function update(vm, workItem) {
   }
 	
   // if story_points is not empty, set it
-  if (vm.env.ado_story_points != "undefined") {
+  if (vm.env.ado_story_points != null) {
     patchDocument.push({
       op: "add",
       path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
