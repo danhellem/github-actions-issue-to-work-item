@@ -225,7 +225,7 @@ async function create(vm) {
   }
 	
 	// if story_points is null, set it to 1
-  if (vm.env.ado_story_points = "null") {
+  if (vm.env.ado_story_points == "null") {
     patchDocument.push({
       op: "add",
       path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
@@ -360,7 +360,7 @@ async function update(vm, workItem) {
     });
   }
 	// if story_points is null, set it to 1
-  if (vm.env.ado_story_points = "null") {
+  if (vm.env.ado_story_points == "null") {
     patchDocument.push({
       op: "add",
       path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
@@ -425,7 +425,7 @@ async function comment(vm, workItem) {
     });
   }
 	// if story_points is null, set it to 1
-  if (vm.env.ado_story_points = "null") {
+  if (vm.env.ado_story_points == "null") {
     patchDocument.push({
       op: "add",
       path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
