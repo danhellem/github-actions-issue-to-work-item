@@ -678,7 +678,7 @@ function getValuesFromPayload(payload, env) {
 		repo_fullname: payload.repository.full_name != undefined ? payload.repository.full_name : "",
 		repo_name: payload.repository.name != undefined ? payload.repository.name : "",
 		repo_url: payload.repository.html_url != undefined ? payload.repository.html_url : "",
-		closed_at: payload.issue.closed_at != undefined ? payload.issue.closed_at : "",
+		closed_at: payload.issue.closed_at != undefined ? payload.issue.closed_at : null,
 		owner: payload.repository.owner != undefined ? payload.repository.owner.login : "",
 		sender_login: payload.sender.login != undefined ? payload.sender.login : '',
 		label: "",
