@@ -28,6 +28,8 @@ The id of the Work Item created or updated
    Optional Env Variables
 
    - `ado_area_path`: To set a specific area path you want your work items created in. If providing a full qualified path such as `area\sub_area`, then be sure to use the format of: `ado_area_path: "area\\area"` to avoid parsing failures.
+   - `ado_story_points`:  Uses the stroy points value from the GraphQL query to help populate this field.  If the value is empty the value will be ignored.
+   - `ado_iteration`: Uses the iteration value from the GraphQL query to help populate this field.  The project name will need to be entered followed by `\\` then the `${{ needs.graphql.outputs.gh_iteration }}` entry.  If the substring "\\null" is in the iteration name it will be ignored.
    - `ado_iteration_path`: To set a specific iteration path you want your work items created in. If providing a full qualified path such as `iteration\sub iteration`, then be sure to use the format of: `ado_iteration_path: "iteration\\iteration"` to avoid parsing failures.
    - `github_token`: Used to update the Issue with AB# syntax to link the work item to the issue. This will only work if the project is configured to use the [GitHub Azure Boards](https://github.com/marketplace/azure-boards) app. If you do not define this value, the action will still work, but the experience is not as nice.
    - `ado_parent`: Used to set a specific related work item in the work item.
@@ -55,20 +57,6 @@ jobs:
     runs-on: gcp
     container: docker.generalmills.com/k8s-ghcli:44-dea02e4
     name: graphql
-    permissions:
-      actions: none
-      checks: none
-      contents: none
-      deployments: none
-      id-token: none
-      issues: read
-      discussions: none
-      packages: none
-      pages: none
-      pull-requests: none
-      repository-projects: none
-      security-events: none
-      statuses: none
     outputs:
       gh_iteration: ${{ steps.get-query.outputs.iteration }}
       gh_story_points: ${{ steps.get-query.outputs.story_points }}
