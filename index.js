@@ -208,8 +208,6 @@ async function create(vm) {
 
   // if iteration path is not empty, set it
   if (vm.env.ado_iteration != "undefined") {
-  }
-	else {
     patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
@@ -334,9 +332,7 @@ async function update(vm, workItem) {
   }
 
   // if iteration path is not empty, set it
-  if (vm.env.ado_iteration) != "undefined") {
-	}
-	else {
+  if (vm.env.ado_iteration != "undefined") {
       patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
