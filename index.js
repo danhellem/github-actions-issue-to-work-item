@@ -218,7 +218,7 @@ async function create(vm) {
 		patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
-      value: vm.env.ado_current_Sprint
+      value: vm.env.ado_current_sprint
     });
 	
 	// if story_points path is not empty, set it
@@ -359,7 +359,7 @@ async function update(vm, workItem) {
 	patchDocument.push({
 		op: "add",
 		path: "/fields/System.IterationPath",
-		value: vm.env.ado_current_Sprint
+		value: vm.env.ado_current_sprint
 	});
 	
   // if story_points is not empty, set it
@@ -430,7 +430,7 @@ async function comment(vm, workItem) {
 	patchDocument.push({
 		op: "add",
 		path: "/fields/System.IterationPath",
-		value: vm.env.ado_current_Sprint
+		value: vm.env.ado_current_sprint
 	});
 	
   // if story_points is not null, set it
