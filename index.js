@@ -223,6 +223,16 @@ async function create(vm) {
 	value: vm.env.ado_story_points
 	 });
   }
+	
+	// if story_points is null, set it to 1
+  if (vm.env.ado_story_points = "null") {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
+      type: "double",
+      value: "1"
+    });
+  }
 
   // if the bypassrules are on, then use the issue.sender.user.name value for the person
   // who created the issue
@@ -349,6 +359,15 @@ async function update(vm, workItem) {
       value: vm.env.ado_story_points
     });
   }
+	// if story_points is null, set it to 1
+  if (vm.env.ado_story_points = "null") {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
+      type: "double",
+      value: "1"
+    });
+  }
 
   // verbose logging
   if (vm.env.logLevel >= 300) {
@@ -396,13 +415,22 @@ async function comment(vm, workItem) {
     });
   }
 	
-  // if story_points is not empty, set it
+  // if story_points is not null, set it
   if (vm.env.ado_story_points != "null") {
     patchDocument.push({
       op: "add",
       path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
       type: "double",
       value: vm.env.ado_story_points
+    });
+  }
+	// if story_points is null, set it to 1
+  if (vm.env.ado_story_points = "null") {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
+      type: "double",
+      value: "1"
     });
   }
 
@@ -719,7 +747,7 @@ function getValuesFromPayload(payload, env) {
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
 			ado_parent: env.ado_parent != undefined ? env.ado_parent : "",
 			ado_iteration: env.ado_iteration != undefined ? env.ado_iteration : "",
-			ado_story_points: env.ado_story_points != undefined ? env.ado_story_points: "null",
+			ado_story_points: env.ado_story_points != undefined ? env.ado_story_points: "1",
 			logLevel: env.log_level != undefined ? env.log_level : 100
 		}
 	};
