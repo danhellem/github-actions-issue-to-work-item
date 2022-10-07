@@ -12,6 +12,12 @@ Update Azure DevOps work item when a GitHub Issue is updated
 
 The id of the Work Item created or updated
 
+## GraphQL
+This action uses graphQL to get the Sprint and Story Points values from the project the issue is assigned to.  It relies on the fields to have the following names:
+- Story Points: "Story"
+- Iteration / Sprint: "Sprint"
+If a different name is used change the "name" field in "fieldValueByName" for Sprint or Story as needed.
+
 ## Example usage
 
 1. Add a secret named `ADO_PERSONAL_ACCESS_TOKEN` containing an [Azure Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate) with "read & write" permission for Work Items
