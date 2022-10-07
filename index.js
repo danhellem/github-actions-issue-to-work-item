@@ -336,7 +336,7 @@ async function update(vm, workItem) {
       patchDocument.push({
       op: "add",
       path: "/fields/System.IterationPath",
-      value: vm.env.ado_interation
+      value: vm.env.ado_iteration
     });
   }
 	
