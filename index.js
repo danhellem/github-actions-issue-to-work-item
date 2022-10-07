@@ -239,7 +239,7 @@ async function create(vm) {
       value: "1"
     });
   }
-  if (vm.env.ado_assignee != "null"){
+  if (vm.env.ado_assignee != ""){
     patchDocument.push({
       op: "add",
       path: "/fields/System.AssignedTo",
@@ -387,7 +387,7 @@ async function update(vm, workItem) {
       value: "1"
     });
   }
-  if (vm.env.ado_assignee != "null"){
+  if (vm.env.ado_assignee != ""){
     patchDocument.push({
       op: "add",
       path: "/fields/System.AssignedTo",
@@ -467,7 +467,7 @@ async function comment(vm, workItem) {
     });
   }
 
-  if (vm.env.ado_assignee != "null"){
+  if (vm.env.ado_assignee != ""){
     patchDocument.push({
       op: "add",
       path: "/fields/System.AssignedTo",
