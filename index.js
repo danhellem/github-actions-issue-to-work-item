@@ -93,7 +93,7 @@ async function main() {
     
     // create right patch document depending on the action tied to the issue
     // update the work item
-    switch (vm.action') {
+    switch (vm.action'){
       case "assigned":
         workItem != null ? await update(vm, workItem) : "";
         break;
