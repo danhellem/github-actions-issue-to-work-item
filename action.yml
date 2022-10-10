@@ -8,5 +8,5 @@ outputs:
   id:
     description: "id of work item created"
 runs:
-  using: "node16"
+  using: "node12"
   main: "index.js"
