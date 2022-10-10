@@ -90,10 +90,13 @@ async function main() {
 
     if (vm.env.logLevel >= 200)
       console.log(`Starting switch statement for action '${vm.action}'`);
-
+    
     // create right patch document depending on the action tied to the issue
     // update the work item
-    switch (vm.action) {
+    switch (vm.action') {
+      case "assigned":
+        workItem != null ? await update(vm, workItem) : "";
+        break;
       case "opened":
         workItem === null ? await create(vm) : "";
         break;
@@ -331,6 +334,7 @@ async function update(vm, workItem) {
       }
     );
   }
+
   // if ado_parent is not empty, set it
   if (vm.env.ado_parent != "") {
     patchDocument.push({
