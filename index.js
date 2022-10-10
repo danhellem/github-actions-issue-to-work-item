@@ -109,9 +109,6 @@ async function main() {
       case "reopened":
         workItem != null ? await reopened(vm, workItem) : "";
         break;
-      case "assigned":
-        console.log("assigned action is not yet implemented");
-        break;
       case "labeled":
         workItem != null ? await label(vm, workItem) : "";
         break;
