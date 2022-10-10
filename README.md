@@ -192,7 +192,7 @@ jobs:
    - `ado_current_sprint`: Built from the `azure_project_name` and the current sprint in ADO.  Used to create a value if the sprint is not set in the GitHub Issue.  The current ADO sprint is pulled using a REST API call to the ADO Project's iteration for the team.
    - `ado_iteration`: Built from the `azure_project_name` and a GraphQL query finds the sprint name and automatically assignes it.  If it was not, then the `ado_current_sprint` is used in it's place.
    - `ado_story_points`: The points set in the GitHub issue.  Default is 1.
-   - `ado_assignee`: The first assignee listed in the issue.  If there is none listed the work item in ADO will be listed as "Unassigned" by default.
+   - `ado_assignee`: The first assignee listed in the issue.  If there is none listed the work item in ADO will be listed as "Unassigned" by default.  Requires the "admin:org" permission to lookup SAML login details.  This provides a workaround to the email address on an individual's GitHub account not set to a General Mills email address.
    - `ado_bypassrules`: Used to bypass any rules on the form to ensure the work item gets created in Azure DevOps. However, some organizations getting bypassrules permissions for the token owner can go against policy. By default the bypassrules will be set to false. If you have rules on your form that prevent the work item to be created with just Title and Description, then you will need to set to true.
    - `log_level`: Used to set the logging verbosity to help with debugging in a production environment. 100 is the default, 400 is the max.
 
