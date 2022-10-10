@@ -171,7 +171,7 @@ jobs:
 ```
 
 
- ## Optional Env Variables
+ ## Env Variables
 
  ### Global ENV
 
