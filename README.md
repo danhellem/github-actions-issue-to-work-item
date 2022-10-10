@@ -34,15 +34,15 @@ You'll need the following to setup the action:
 4. Add a secret named `ADO_PERSONAL_ACCESS_TOKEN` containing an [Azure Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate) with "read & write" permission for Work Items
 5. Add an optional secret named `GH_PERSONAL_ACCESS_TOKEN` containing a [GitHub Personal Access Token](https://help.github.com/en/enterprise/2.17/user/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) with "repo" permissions. See optional information below.
 6. Install the [Azure Boards App](https://github.com/marketplace/azure-boards) from the GitHub Marketplace.  To enable the app for a repository follow these steps:
--  Navigate to the organization the repository is in.
--  Click on "Settings" across the banner below the organization name.
--  Click on "GitHub Apps" in the menu on the left.
--  Click on "Configure" for the Azure Boards applicaiton.
--  Click "Save" towards the bottom the page.
--  Sign in with your Microsoft account.
--  From the menu select the project you want to connect.  You can use the search feature to narrow down the choices.
--  Click "Continue"
--  Pick the correct Azure DevOps repository to add the Azure Boards feature.
+   - Navigate to the organization the repository is in.
+   -  Click on "Settings" across the banner below the organization name.
+   -  Click on "GitHub Apps" in the menu on the left.
+   -  Click on "Configure" for the Azure Boards applicaiton.
+   -  Click "Save" towards the bottom the page.
+   -  Sign in with your Microsoft account.
+   -  From the menu select the project you want to connect.  You can use the search feature to narrow down the choices.
+   -  Click "Continue"
+   -  Pick the correct Azure DevOps repository to add the Azure Boards feature.
 7. Add a workflow like the example below.
 -  Note the global env values.  Those are there to make the ado-sync vairables easier to set.
 
