@@ -27,13 +27,13 @@ Action is triggered on the following:
 
 ## Setup
 
+### Repository Setup
+
 You'll need the following to setup the action:
-1. Name of the Azure DevOps Project Board to send the GitHub issues to. `ado_project`
-2. ADO Work Order ID to assign "Related Work" (if needed) `ado_parent`
-3. What Azure DevOps "Area" the tickets should be assigned to by default (if needed) `ado_area_path`
-4. Add a secret named `ADO_PERSONAL_ACCESS_TOKEN` containing an [Azure Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate) with "read & write" permission for Work Items
-5. Add an optional secret named `GH_PERSONAL_ACCESS_TOKEN` containing a [GitHub Personal Access Token](https://help.github.com/en/enterprise/2.17/user/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) with "repo" permissions. See optional information below.
-6. Install the [Azure Boards App](https://github.com/marketplace/azure-boards) from the GitHub Marketplace.  To enable the app for a repository follow these steps:
+
+1. Add a secret named `ADO_PERSONAL_ACCESS_TOKEN` containing an [Azure Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate) with "read & write" permission for Work Items
+2. Add an optional secret named `GH_PERSONAL_ACCESS_TOKEN` containing a [GitHub Personal Access Token](https://help.github.com/en/enterprise/2.17/user/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) with "repo", "admin:org", "read:project" permissions.
+3. Install the [Azure Boards App](https://github.com/marketplace/azure-boards) from the GitHub Marketplace.  To enable the app for a repository follow these steps:
    - Navigate to the organization the repository is in.
    -  Click on "Settings" across the banner below the organization name.
    -  Click on "GitHub Apps" in the menu on the left.
@@ -43,8 +43,15 @@ You'll need the following to setup the action:
    -  From the menu select the project you want to connect.  You can use the search feature to narrow down the choices.
    -  Click "Continue"
    -  Pick the correct Azure DevOps repository to add the Azure Boards feature.
-7. Add a workflow like the example below.
+4. Add a workflow like the example below.
 -  Note the global env values.  Those are there to make the ado-sync vairables easier to set.
+
+### Action Setup
+
+1. Name of the ADO Organization `azure_org_name`
+2. Name of the Azure DevOps Project Board to send the GitHub issues to. `azure_project_name`
+3. ADO Work Order ID to assign "Related Work" (if needed) `azure_parent_id`
+4. What Azure DevOps "Area" the tickets should be assigned to by default (if needed) `azure_area_subname`
 
 ```yaml
 name: GitHub Sync issue to Azure DevOps work item
@@ -63,6 +70,7 @@ env:
   github_token: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"
   azure_org_name: "GeneralMills"
   azure_project_name: "Cloverleaf"
+  azure_area_subname: "Cloud Platform"
   azure_parent_id: "840193"
 
 jobs:
@@ -130,11 +138,13 @@ jobs:
           echo ::set-output name=assignee::"$first $last"
           echo "GitHub Assignee Name: $first $last"
         fi
+
         curl -u :"${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}"  'https://dev.azure.com/${{ env.azure_org_name }}/${{ env.azure_project_name }}/_apis/work/teamsettings/iterations?$timeframe=current&api-version=6.0' > currentsprint.json
         echo ::set-output name=iteration::$(jq -r '.data.repository.issue.projectItems.nodes[0].sprint.title' result.json)
         echo ::set-output name=story_points::$(jq -r '.data.repository.issue.projectItems.nodes[0].story.number' result.json)
         echo ::set-output name=current_sprint::$(jq -r '.value[0].name' currentsprint.json)
         echo $(jq -r '.data.repository.issue.assignees.nodes[0].login' result.json)
+
   ado-sync:
     runs-on: gcp
     needs: get-issue-info
@@ -145,7 +155,7 @@ jobs:
         github_token: "${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}"
         ado_organization: "${{ env.azure_org_name }}"
         ado_project: "${{ env.azure_project_name }}"
-        ado_area_path: "${{ env.azure_project_name }}\\Support"
+        ado_area_path: "${{ env.azure_project_name }}\\$ {{ env.azure_area_subname }}"
         ado_wit: "User Story"
         ado_new_state: "New"
         ado_active_state: "Active"
@@ -157,20 +167,32 @@ jobs:
         ado_assignee: "${{ needs.get-issue-info.outputs.gh_assignee }}"
         ado_bypassrules: true
         log_level: 400
+
 ```
 
 
- Optional Env Variables
+ ## Optional Env Variables
 
-   - `ado_area_path`: To set a specific area path you want your work items created in. If providing a full qualified path such as `area\sub_area`, then be sure to use the format of: `ado_area_path: "area\\sub_area"` to avoid parsing failures.
-   - `ado_story_points`:  Uses the stroy points value from the GraphQL query to help populate this field.  If the value is "null" the value will be ignored.
-   - `ado_iteration`: Uses the iteration value from the GraphQL query to help populate this field.  The project name will need to be entered followed by `\\` then the `${{ needs.graphql.outputs.gh_iteration }}` entry.  If the substring "\\null" is in the iteration name it will be ignored.
-   - `ado_iteration_path`: To set a specific iteration path you want your work items created in. If providing a full qualified path such as `iteration\sub_iteration`, then be sure to use the format of: `ado_iteration_path: "iteration\\sub_iteration"` to avoid parsing failures.
-   - `github_token`: Used to update the Issue with AB# syntax to link the work item to the issue. This will only work if the project is configured to use the [GitHub Azure Boards](https://github.com/marketplace/azure-boards) app. If you do not define this value, the action will still work, but the experience is not as nice.
-   - `ado_parent`: Used to set a specific related work item in the ADO work item.
-   - `ado_assignee`: Used to automatically assign the work item in ADO to the individual who is assigned in GitHub.  Will skip assignment if it's empty automatically.
+ ### Global ENV
+
+   - `azure_org_name`: The top level (root) organization in ADO.
+   - `azure_project_name`: The name of the project in ADO.
+   - `azure_area_subname`: The subname to complete the iteration area path in ADO  AKA "Area"
+   - `azure_parent_id`: The parent work item to nest the ADO entry into. AKA "Related Work"
+
+ ### ado-sync ENV
+   - `ado_organization`: Set from the `azure_org_name` Global ENV.
+   - `ado_project`: Set from the `azure_project_name` Global ENV.
+   - `ado_area_path`: Built from combining the `azure_project_name` and `azure_area_subname` Global ENV
+   - `ado_wit`: The type of work item you want the ADO entry to have. "User Story" is the typical default.  
+   - `ado_new_state`: When a new work item is created in ADO, use this state.  "New" is default
+   - `ado_active_state`: When a work item is reopened in ADO, use this state.  "Active" is default.
+   - `ado_close_state`: When closing a work item, use this state in ADO.  "Closed" is default.
+   - `ado_parent`: "Set from the `azure_parent_id` Global ENV.
+   - `ado_current_sprint`: Built from the `azure_project_name` and the current sprint in ADO.  Used to create a value if the sprint is not set in the GitHub Issue.  The current ADO sprint is pulled using a REST API call to the ADO Project's iteration for the team.
+   - `ado_iteration`: Built from the `azure_project_name` and a GraphQL query finds the sprint name and automatically assignes it.  If it was not, then the `ado_current_sprint` is used in it's place.
+   - `ado_story_points`: The points set in the GitHub issue.  Default is 1.
+   - `ado_assignee`: The first assignee listed in the issue.  If there is none listed the work item in ADO will be listed as "Unassigned" by default.
    - `ado_bypassrules`: Used to bypass any rules on the form to ensure the work item gets created in Azure DevOps. However, some organizations getting bypassrules permissions for the token owner can go against policy. By default the bypassrules will be set to false. If you have rules on your form that prevent the work item to be created with just Title and Description, then you will need to set to true.
-   - `log_level`: Used to set the logging verbosity to help with debugging in a production environment. 100 is the default. 
-
-     **Warning:** Setting `log_level` to 300 will log out environment info, work items, and issue data. Only use 300 when debugging issues.
+   - `log_level`: Used to set the logging verbosity to help with debugging in a production environment. 100 is the default, 400 is the max.
 
