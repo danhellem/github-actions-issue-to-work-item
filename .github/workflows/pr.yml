@@ -12,7 +12,8 @@ jobs:
     name: Running Workflow
     steps:       
     - uses: danhellem/github-actions-pr-to-work-item@master
-      env:     
+      env:
+        debug: true
         ado_token: '${{ secrets.ADO_PERSONAL_ACCESS_TOKEN }}' 
         github_token: '${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}' 
         ado_organization: '${{ secrets.ADO_ORGANIZATION }}'
