@@ -47,6 +47,7 @@ on:
 
 jobs:
   alert:
+    if: ${{ !github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     steps:
       - uses: danhellem/github-actions-issue-to-work-item@master

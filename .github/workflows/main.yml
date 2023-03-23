@@ -8,6 +8,7 @@ on:
 
 jobs:
   alert:
+    if: ${{ !github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     name: Testing workflow
     steps:       
