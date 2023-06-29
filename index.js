@@ -130,9 +130,9 @@ async function main() {
 
     // set output message
     if (workItem != null || workItem != undefined) {
-      console.log(`Work item successfully created or updated: ${workItem.id}`);
-      core.setOutput(`id`, `${workItem.id}`);
+      console.log(`Work item successfully created or updated: ${workItem.id}`);      
     }
+    
   } catch (error) {
     console.log("Error in catch statement:");
     console.log(error);
