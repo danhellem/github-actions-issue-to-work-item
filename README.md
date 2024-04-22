@@ -33,6 +33,7 @@ The id of the Work Item created or updated
    - `github_token`: Used to update the Issue with AB# syntax to link the work item to the issue. This will only work if the project is configured to use the [GitHub Azure Boards](https://github.com/marketplace/azure-boards) app. If you do not define this value, the action will still work, but the experience is not as nice.
    - `ado_bypassrules`: Used to bypass any rules on the form to ensure the work item gets created in Azure DevOps. However, some organizations getting bypassrules permissions for the token owner can go against policy. By default the bypassrules will be set to false. If you have rules on your form that prevent the work item to be created with just Title and Description, then you will need to set to true.
    - `log_level`: Used to set the logging verbosity to help with debugging in a production environment. 100 is the default. 
+   - `parentId`: Used to set the parent work item id for the work item created. This is useful when you want to create a child work item for a parent work item.
 
      **Warning:** Setting `log_level` to 300 will log out environment info, work items, and issue data. Only use 300 when debugging issues.
 
