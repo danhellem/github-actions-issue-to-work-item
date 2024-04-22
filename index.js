@@ -28,6 +28,7 @@ async function main() {
       env.ado_active_state = "Active";
       env.ado_new_state = "New";
       env.log_level = 100;
+      env.parentId = "";
 
       console.log("Set values from test payload");
       vm = getValuesFromPayload(testPayload, env);
@@ -192,9 +193,20 @@ async function create(vm) {
       op: "add",
       path: "/fields/Microsoft.VSTS.Common.BacklogPriority",
       value: 1
-    } 
+    }
   ];
 
+  // if parentId is not empty, set it
+  if (vm.env.parentId != "") {
+    patchDocument.push({
+      op: "add",
+      path: "/relations/-",
+      value: {
+        rel: "System.LinkTypes.Hierarchy-Reverse",//Add a parent link
+        url: `https://dev.azure.com/${vm.env.orgUrl}/${vm.env.project}/_apis/wit/workItems/${vm.env.parentId}`
+      }
+    });
+  }
   // if area path is not empty, set it
   if (vm.env.areaPath != "") {
     patchDocument.push({
@@ -667,7 +679,8 @@ function getValuesFromPayload(payload, env) {
 			newState: env.ado_new_state != undefined ? env.ado_new_state : "New",
 			activeState: env.ado_active_state != undefined ? env.ado_active_state : "Active",
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
-      logLevel: env.log_level != undefined ? env.log_level : 100
+      logLevel: env.log_level != undefined ? env.log_level : 100,
+      parentId: env.parentId != undefined ? env.parentId : "",
 		}
 	};
 
