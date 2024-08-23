@@ -229,7 +229,7 @@ async function create(vm) {
     console.log(patchDocument);
   }
 
-  let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.adoToken);
+  let authHandler = azdev.getHandlerFromToken(vm.env.adoToken);
   let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
   let client = await connection.getWorkItemTrackingApi();
   let workItemSaveResult = null;
@@ -493,7 +493,7 @@ async function unlabel(vm, workItem) {
 async function find(vm) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'find' method...`);
 
-  let authHandler = azdev.getPersonalAccessTokenHandler(vm.env.adoToken);
+  let authHandler = azdev.getHandlerFromToken(vm.env.adoToken);
   let connection = new azdev.WebApi(vm.env.orgUrl, authHandler);
   let client = null;
   let workItem = null;
@@ -572,7 +572,7 @@ async function find(vm) {
 async function updateWorkItem(patchDocument, id, env) {
   if (env.logLevel >= 200) console.log(`Starting 'updateWorkItem' method...`);
 
-  let authHandler = azdev.getPersonalAccessTokenHandler(env.adoToken);
+  let authHandler = azdev.getHandlerFromToken(env.adoToken);
   let connection = new azdev.WebApi(env.orgUrl, authHandler);
   let client = await connection.getWorkItemTrackingApi();
   let workItemSaveResult = null;
