@@ -110,7 +110,8 @@ async function main() {
         workItem != null ? await reopened(vm, workItem) : "";
         break;
       case "assigned":
-        console.log("assigned action is not yet implemented");
+        workItem != null ? await assigned(vm, workItem) : "";
+	console.log("assigned action is not yet implemented");
         break;
       case "labeled":
         workItem != null ? await label(vm, workItem) : "";
@@ -418,6 +419,39 @@ async function reopened(vm, workItem) {
     op: "add",
     path: "/fields/System.History",
     value: `GitHub issue reopened by ${vm.user}`,
+  });
+
+  // verbose logging
+  if (vm.env.logLevel >= 300) {
+    console.log("Print full patch object:");
+    console.log(patchDocument);
+  }
+
+  if (patchDocument.length > 0) {
+    return await updateWorkItem(patchDocument, workItem.id, vm.env);
+  } else {
+    return null;
+  }
+}
+
+// assigned method, move issue to active state
+async function assigned(vm, workItem) {
+  if (vm.env.logLevel >= 200) console.log(`Starting 'assigned' method...`);
+
+  let patchDocument = [];
+
+  // move to assigned state
+  patchDocument.push({
+    op: "add",
+    path: "/fields/System.State",
+    value: vm.env.activeState,
+  });
+
+  // add comment
+  patchDocument.push({
+    op: "add",
+    path: "/fields/System.History",
+    value: `GitHub issue assigned by ${vm.user}`,
   });
 
   // verbose logging
