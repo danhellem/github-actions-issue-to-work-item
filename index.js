@@ -214,6 +214,15 @@ async function create(vm) {
     });
   }
 
+  // if assignee is not empty, set it
+  if (vm.env.assignedTo != "") {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.AssignedTo",
+      value: vm.env.assignedTo
+    });
+  }
+
   // if the bypassrules are on, then use the issue.sender.user.name value for the person
   // who created the issue
   if (vm.env.bypassRules) {
@@ -284,6 +293,16 @@ async function update(vm, workItem) {
       op: "add",
       path: "/fields/System.Title",
       value: vm.title + " (GitHub Issue #" + vm.number + ")",
+    });
+  }
+
+  if (
+    workItem.fields["System.AssignedTo"] != vm.env.assignedTo
+  ) {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.AssignedTo",
+      value: vm.env.assignedTo,
     });
   }
 
