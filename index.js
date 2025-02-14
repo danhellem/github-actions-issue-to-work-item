@@ -643,6 +643,7 @@ async function updateIssueBody(vm, workItem) {
       repo: vm.repository,
       issue_number: vm.number,
       body: vm.body,
+      assignees: vm.env.AssignedTo
     });
 
     // verbose logging
@@ -693,7 +694,7 @@ function getValuesFromPayload(payload, env) {
 			activeState: env.ado_active_state != undefined ? env.ado_active_state : "Active",
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
       logLevel: env.log_level != undefined ? env.log_level : 100,
-      assignedTo: env.ado_assigned_to != undefined ? env.ado_assigned_to : ""
+      assignedTo: env.ado_assigned_to != undefined ? env.ado_assigned_to : "none"
 		}
 	};
 
