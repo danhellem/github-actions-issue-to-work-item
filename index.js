@@ -110,6 +110,7 @@ async function main() {
         workItem != null ? await reopened(vm, workItem) : "";
         break;
       case "assigned":
+        workItem != null ? await assigned(vm, workItem) : "";
         console.log("assigned action is not yet implemented");
         break;
       case "labeled":
@@ -401,6 +402,35 @@ async function close(vm, workItem) {
     return null;
   }
 }
+
+async function assigned(vm, workItem) {
+  if (vm.env.logLevel >= 200) console.log(`Starting 'assigned' method...`);
+  
+//check if vm.env.AssignedTo is empty. If empty, set to default value
+  if (vm.env.AssignedTo === "") {
+    vm.env.AssignedTo = "Unassigned";
+  }
+
+  let patchDocument = [];
+  patchDocument.push({
+    op: "add",
+    path: "/fields/System.AssignedTo",
+    value: vm.env.AssignedTo,
+  });
+
+    // verbose logging
+    if (vm.env.logLevel >= 300) {
+      console.log("Print full patch object:");
+      console.log(patchDocument);
+    }
+  
+    if (patchDocument.length > 0) {
+      return await updateWorkItem(patchDocument, workItem.id, vm.env);
+    } else {
+      return null;
+    }
+  }
+
 
 // reopen existing work item
 async function reopened(vm, workItem) {
