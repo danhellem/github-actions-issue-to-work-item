@@ -406,11 +406,6 @@ async function close(vm, workItem) {
 async function assigned(vm, workItem) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'assigned' method...`);
   
-//check if vm.env.AssignedTo is empty. If empty, set to default value
-  if (vm.env.AssignedTo === "") {
-    vm.env.AssignedTo = "Unassigned";
-  }
-
   let patchDocument = [];
   patchDocument.push({
     op: "add",
@@ -697,7 +692,8 @@ function getValuesFromPayload(payload, env) {
 			newState: env.ado_new_state != undefined ? env.ado_new_state : "New",
 			activeState: env.ado_active_state != undefined ? env.ado_active_state : "Active",
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
-      logLevel: env.log_level != undefined ? env.log_level : 100
+      logLevel: env.log_level != undefined ? env.log_level : 100,
+      assignedTo: env.ado_assigned_to != undefined ? env.ado_assigned_to : ""
 		}
 	};
 
