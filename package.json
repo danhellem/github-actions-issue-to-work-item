@@ -19,7 +19,7 @@
 	"homepage": "https://github.com/danhellem/github-actions-issue-to-work-item#readme",
 	"dependencies": {
 		"@actions/core": "^1.9.1",
-		"@actions/github": "^5.1.1",
+		"@actions/github": "^6.0.0",
 		"azure-devops-node-api": "^10.2.2",
 		"showdown": "^1.9.1"
 	}
