@@ -167,6 +167,11 @@ async function create(vm) {
     },
     {
       op: "add",
+      path: "Microsoft.VSTS.Scheduling.StoryPoints",
+      value: vm.defaultStoryPoints
+    },
+    {
+      op: "add",
       path: "/fields/System.Tags",
       value: "GitHub Issue; " + vm.repo_name
     },
@@ -458,12 +463,6 @@ async function assigned(vm, workItem) {
     });
   }}
 
-  // patchDocument.push({
-  //   op: "add",
-  //   path: "/fields/System.AssignedTo",
-  //   value: vm.env.AssignedTo,
-  // });
-
     // verbose logging
     if (vm.env.logLevel >= 300) {
       console.log("Print full patch object:");
@@ -726,6 +725,7 @@ function getValuesFromPayload(payload, env) {
 		closed_at: payload.issue.closed_at != undefined ? payload.issue.closed_at : null,
 		owner: payload.repository.owner != undefined ? payload.repository.owner.login : "",
 		sender_login: payload.sender.login != undefined ? payload.sender.login : '',
+    defaultStoryPoints: env.defaultStoryPoints != undefined ? env.defaultStoryPoints : 0.5,
 		label: "",
 		comment_text: "",
 		comment_url: "",
