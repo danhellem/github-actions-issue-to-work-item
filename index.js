@@ -167,7 +167,7 @@ async function create(vm) {
     },
     {
       op: "add",
-      path: "Microsoft.VSTS.Scheduling.StoryPoints",
+      path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
       value: vm.defaultStoryPoints
     },
     {
