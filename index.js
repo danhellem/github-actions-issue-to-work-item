@@ -299,7 +299,7 @@ async function update(vm, workItem) {
     workItem.fields["System.AssignedTo"] != vm.env.assignedTo
   ) {
 
-    if (vm.env.assignedTo === "") {
+    if (vm.env.assignedTo == "") {
       console.log("Removing assigned to field");
 
       patchDocument.push({
@@ -435,11 +435,34 @@ async function assigned(vm, workItem) {
   if (vm.env.logLevel >= 200) console.log(`Starting 'assigned' method...`);
   
   let patchDocument = [];
-  patchDocument.push({
-    op: "add",
-    path: "/fields/System.AssignedTo",
-    value: vm.env.AssignedTo,
-  });
+
+
+  if (
+    workItem.fields["System.AssignedTo"] != vm.env.assignedTo
+  ) {
+    if (vm.env.assignedTo === "") {
+      console.log("Removing assigned to field");
+
+      patchDocument.push({
+        op: "remove",
+        path: "/fields/System.AssignedTo",
+      });
+    } 
+    else 
+    {
+    console.log("Reassigning work item to new user");
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.AssignedTo",
+      value: vm.env.assignedTo,
+    });
+  }}
+
+  // patchDocument.push({
+  //   op: "add",
+  //   path: "/fields/System.AssignedTo",
+  //   value: vm.env.AssignedTo,
+  // });
 
     // verbose logging
     if (vm.env.logLevel >= 300) {
@@ -670,8 +693,8 @@ async function updateIssueBody(vm, workItem) {
       owner: vm.owner,
       repo: vm.repository,
       issue_number: vm.number,
-      body: vm.body,
-      assignees: vm.env.AssignedTo
+      body: vm.body//,
+      // assignees: vm.env.AssignedTo
     });
 
     // verbose logging
