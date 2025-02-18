@@ -111,7 +111,6 @@ async function main() {
         break;
       case "assigned":
         workItem != null ? await assigned(vm, workItem) : "";
-        console.log("assigned action is not yet implemented");
         break;
       case "labeled":
         workItem != null ? await label(vm, workItem) : "";
@@ -299,12 +298,22 @@ async function update(vm, workItem) {
   if (
     workItem.fields["System.AssignedTo"] != vm.env.assignedTo
   ) {
+
+    if (vm.env.assignedTo === "") {
+      console.log("Removing assigned to field");
+
+      patchDocument.push({
+        op: "remove",
+        path: "/fields/System.AssignedTo",
+      });
+    } else {
+    console.log("Reassigning work item to new user");
     patchDocument.push({
       op: "add",
       path: "/fields/System.AssignedTo",
       value: vm.env.assignedTo,
     });
-  }
+  }}
 
   if (workItem.fields["System.Description"] != html || workItem.fields["Microsoft.VSTS.TCM.ReproSteps"] != html ) {
     patchDocument.push(
