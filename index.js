@@ -615,7 +615,7 @@ async function updateIssueBody(vm, workItem) {
     vm.body = vm.body + "\r\n\r\nAB#" + workItem.id.toString();
 
     var result = await octokit.issues.update({
-      owner: vm.owner,
+      owner: vm.organization,
       repo: vm.repository,
       issue_number: vm.number,
       body: vm.body,
