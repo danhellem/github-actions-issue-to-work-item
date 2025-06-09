@@ -21,6 +21,6 @@
 		"@actions/core": "^1.11.0",
 		"@actions/github": "^6.0.0",
 		"azure-devops-node-api": "^15.1.0",
-		"showdown": "^1.9.1"
+		"showdown": "^2.1.0"
 	}
 }
