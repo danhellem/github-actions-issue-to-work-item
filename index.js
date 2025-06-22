@@ -110,7 +110,10 @@ async function main() {
         workItem != null ? await reopened(vm, workItem) : "";
         break;
       case "assigned":
-        console.log("assigned action is not yet implemented");
+        workItem != null ? await assigned(vm, workItem) : "";
+        break;
+      case "unassigned":
+        workItem != null ? await assigned(vm, workItem) : "";
         break;
       case "labeled":
         workItem != null ? await label(vm, workItem) : "";
@@ -167,6 +170,11 @@ async function create(vm) {
     },
     {
       op: "add",
+      path: "/fields/Microsoft.VSTS.Scheduling.StoryPoints",
+      value: vm.defaultStoryPoints
+    },
+    {
+      op: "add",
       path: "/fields/System.Tags",
       value: "GitHub Issue; " + vm.repo_name
     },
@@ -210,6 +218,15 @@ async function create(vm) {
       op: "add",
       path: "/fields/System.IterationPath",
       value: vm.env.iterationPath
+    });
+  }
+
+  // if assignee is not empty, set it
+  if (vm.env.assignedTo != "") {
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.AssignedTo",
+      value: vm.env.assignedTo
     });
   }
 
@@ -285,6 +302,26 @@ async function update(vm, workItem) {
       value: vm.title + " (GitHub Issue #" + vm.number + ")",
     });
   }
+
+  if (
+    workItem.fields["System.AssignedTo"] != vm.env.assignedTo
+  ) {
+
+    if (vm.env.assignedTo == "") {
+      console.log("Removing assigned to field");
+
+      patchDocument.push({
+        op: "remove",
+        path: "/fields/System.AssignedTo",
+      });
+    } else {
+    console.log("Reassigning work item to new user");
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.AssignedTo",
+      value: vm.env.assignedTo,
+    });
+  }}
 
   if (workItem.fields["System.Description"] != html || workItem.fields["Microsoft.VSTS.TCM.ReproSteps"] != html ) {
     patchDocument.push(
@@ -401,6 +438,47 @@ async function close(vm, workItem) {
     return null;
   }
 }
+
+async function assigned(vm, workItem) {
+  if (vm.env.logLevel >= 200) console.log(`Starting 'assigned' method...`);
+  
+  let patchDocument = [];
+
+
+  if (
+    workItem.fields["System.AssignedTo"] != vm.env.assignedTo
+  ) {
+    if (vm.env.assignedTo == "") {
+      console.log("Removing assigned to field");
+
+      patchDocument.push({
+        op: "remove",
+        path: "/fields/System.AssignedTo",
+      });
+    } 
+    else 
+    {
+    console.log("Reassigning work item to new user");
+    patchDocument.push({
+      op: "add",
+      path: "/fields/System.AssignedTo",
+      value: vm.env.assignedTo,
+    });
+  }}
+
+    // verbose logging
+    if (vm.env.logLevel >= 300) {
+      console.log("Print full patch object:");
+      console.log(patchDocument);
+    }
+  
+    if (patchDocument.length > 0) {
+      return await updateWorkItem(patchDocument, workItem.id, vm.env);
+    } else {
+      return null;
+    }
+  }
+
 
 // reopen existing work item
 async function reopened(vm, workItem) {
@@ -618,7 +696,8 @@ async function updateIssueBody(vm, workItem) {
       owner: vm.organization,
       repo: vm.repository,
       issue_number: vm.number,
-      body: vm.body,
+      body: vm.body//,
+      // assignees: vm.env.AssignedTo
     });
 
     // verbose logging
@@ -650,6 +729,7 @@ function getValuesFromPayload(payload, env) {
 		closed_at: payload.issue.closed_at != undefined ? payload.issue.closed_at : null,
 		owner: payload.repository.owner != undefined ? payload.repository.owner.login : "",
 		sender_login: payload.sender.login != undefined ? payload.sender.login : '',
+    defaultStoryPoints: env.defaultStoryPoints != undefined ? env.defaultStoryPoints : 0.5,
 		label: "",
 		comment_text: "",
 		comment_url: "",
@@ -668,7 +748,8 @@ function getValuesFromPayload(payload, env) {
 			newState: env.ado_new_state != undefined ? env.ado_new_state : "New",
 			activeState: env.ado_active_state != undefined ? env.ado_active_state : "Active",
 			bypassRules: env.ado_bypassrules != undefined ? env.ado_bypassrules : false,
-      logLevel: env.log_level != undefined ? env.log_level : 100
+      logLevel: env.log_level != undefined ? env.log_level : 100,
+      assignedTo: env.ado_assigned_to != undefined ? env.ado_assigned_to : "none"
 		}
 	};
 
